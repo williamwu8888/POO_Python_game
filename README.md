@@ -57,3 +57,4 @@ Décrivez l'organisation du code, en expliquant les principaux fichiers et class
 - game_manager.py : Classe pour gérer l'état du jeu (tour par tour, victoire/défaite).
 
 Vous pouvez également inclure un diagramme UML ou une description de la structure de code pour aider à comprendre l'architecture.
+# git-playgroungd
