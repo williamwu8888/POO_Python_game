@@ -1,6 +1,6 @@
 # "NOM DU JEU"
 
-Description succincte du jeu, par exemple : "Un jeu de plateau tactique tour par tour en 2D développé en Python."
+Un jeu de stratégie en 2D avec des mécaniques de plateau, où le joueur contrôle des unités qui se déplacent et attaquent dans un environnement dynamique. Le jeu est développé en Python en utilisant Pygame pour la gestion graphique.
 
 ## Table des Matières
 - [Contributeurs](#contributeurs)
@@ -28,33 +28,48 @@ Master 1 - Ingénierie pour la Santé, Systèmes Mécatroniques pour la Réhabil
 Capture d'écran ou GIF animé montrant le jeu en action, si possible.
 
 ## Fonctionnalités
-Liste des principales fonctionnalités du jeu, par exemple :
-- Tour par tour
-- Système de points de vie et de dégâts
-- Différents types de personnages ou unités
-- Interface utilisateur basique (texte ou graphique)
-- Modes de jeu, comme joueur contre IA
+- **Tour par tour** : Le jeu se déroule sur des tours où chaque joueur et chaque ennemi agissent à leur tour.
+- **Système de points de vie et de dégâts** : Les unités ont des points de vie, et chaque attaque inflige des dégâts calculés selon la défense et l'attaque.
+- **Différents types de personnages ou unités** : Chaque unité a des compétences spécifiques, des points de vie et des capacités de déplacement.
+- **Interface utilisateur basique** : Affichage du plateau de jeu et des unités, avec des informations sur les points de vie.
+- **Modes de jeu** : Joueur contre IA, avec des ennemis contrôlés par une IA simple.
 
 ## Utilisation
-Instructions pour lancer le jeu :
+### Lancer le Jeu
+Pour démarrer le jeu, exécutez le fichier `main.py`. Il est nécessaire d'avoir Pygame installé.
+
+```bash
+pip install pygame
+```
+
+Ensuite, lancez le jeu avec la commande suivante :
+```bash
+python main.py
+```
 
 ## Gameplay
-Description du gameplay, expliquant comment jouer, les règles de base et les commandes disponibles :
+Le jeu se joue sur un plateau de 8x8 cases. Le joueur contrôle des unités avec différentes compétences, comme les attaques à distance ou de mêlée.
 
-- Déplacement : Utilisez les touches fléchées pour déplacer votre personnage.
-- Attaquer : Appuyez sur la touche A pour attaquer une unité ennemie.
-- Objets : Expliquez l'utilisation des objets s'il y en a.
-
-Vous pouvez aussi ajouter des stratégies et astuces de jeu.
+### Commandes :
+- **Déplacement** : Utilisez les touches fléchées pour déplacer votre personnage.
+- **Attaquer** : Appuyez sur la touche `Espace` pour valider un déplacement et accéder à un menu de compétences.
+- **Compétences** : Choisissez une compétence via les touches numériques (`1`, `2`, etc.) pour attaquer les ennemis.
+- **Quitter** : Fermez la fenêtre pour quitter le jeu.
 
 ## Architecture du Code
-Décrivez l'organisation du code, en expliquant les principaux fichiers et classes :
+Le jeu est organisé en plusieurs fichiers Python, chacun ayant une responsabilité spécifique :
 
-- main.py : Point d'entrée principal du jeu.
-- board.py : Classe pour le plateau de jeu, gestion de la grille.
-- player.py : Classe pour le joueur et les actions.
-- enemy.py : Classe pour les ennemis et leur comportement.
-- game_manager.py : Classe pour gérer l'état du jeu (tour par tour, victoire/défaite).
+- **`main.py`** : Point d'entrée principal du jeu. Gère l'affichage et le cycle de jeu.
+- **`game.py`** : Contient la logique du jeu, comme la gestion des tours du joueur et des ennemis, ainsi que l'application des compétences.
+- **`board.py`** : Gère le plateau de jeu, les cellules et les unités présentes sur chaque case.
+- **`cell.py`** : Représente chaque cellule du plateau, avec des informations sur son type et l'unité qui y est présente.
+- **`unit.py`** : Définit la classe `Unit`, qui représente une unité sur le terrain, avec ses points de vie, son attaque, sa défense et ses compétences.
+- **`skill.py`** : Contient les compétences des unités, leur utilisation et leurs effets sur les ennemis.
 
-Vous pouvez également inclure un diagramme UML ou une description de la structure de code pour aider à comprendre l'architecture.
-# git-playgroungd
+### Description des classes principales :
+- **`Unit`** : Les unités ont des attributs comme la santé, la défense, l'attaque, la vitesse et les compétences. Elles peuvent se déplacer sur le plateau et attaquer d'autres unités.
+- **`Skill`** : Chaque compétence a un pouvoir, une portée, une précision et un effet de zone.
+- **`Board`** : Le plateau est une grille de cellules, où chaque cellule peut contenir une unité ou être vide. Certaines cellules peuvent être spéciales, comme des cellules d'eau ou de lave.
+  
+### Exemple de diagramme UML
+Un diagramme UML peut être ajouté ici pour visualiser la structure du code.
