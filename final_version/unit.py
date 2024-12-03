@@ -50,18 +50,18 @@ class Unit:
                 game.enemy_units.remove(self)
 
     def draw(self, screen):
-        """Dessine l'unité sur l'écran, avec une barre de vie."""
+        """Dessine l'unité sur l'écran, avec une barre de vie et les HP restants."""
         # Définir la couleur en fonction de l'équipe (bleu pour le joueur, rouge pour l'ennemi)
         color = (0, 0, 255) if self.team == 'player' else (255, 0, 0)
 
         # Dessiner le cercle représentant l'unité
-        pygame.draw.circle(screen, color, (self.x * 60 + 30, self.y * 60 + 30), 20)
+        pygame.draw.circle(screen, color, (self.x * 60 + 30, self.y * 60 + 25), 15) 
 
         # Dessiner la barre de vie
-        max_bar_width = 50  # Largeur maximale de la barre
-        bar_height = 5      # Hauteur de la barre
-        bar_x = self.x * 60 + 5  # Position x de la barre
-        bar_y = self.y * 60 + 50  # Position y de la barre (au-dessous de l'unité)
+        max_bar_width = 50  # Largeur de la barre
+        bar_height = 10     # Augmenter l'épaisseur de la barre
+        bar_x = self.x * 60 + 5  # Centré horizontalement
+        bar_y = self.y * 60 + 45  # Position sous l'unité
 
         # Calculer la largeur proportionnelle aux HP restants
         hp_ratio = self.health / self.max_health
@@ -72,3 +72,10 @@ class Unit:
 
         # Dessiner la partie remplie (points de vie restants)
         pygame.draw.rect(screen, (0, 255, 0), (bar_x, bar_y, bar_width, bar_height))
+
+        # Dessiner le texte des HP directement sur la barre
+        font = pygame.font.Font(None, 18)  # Police par défaut, taille 18
+        hp_text = font.render(f"{self.health}/{self.max_health}", True, (0, 0, 0))  # Texte noir pour contraste
+        text_x = bar_x + (max_bar_width - hp_text.get_width()) // 2  # Centrer le texte dans la barre
+        text_y = bar_y + (bar_height - hp_text.get_height()) // 2   # Centrer verticalement
+        screen.blit(hp_text, (text_x, text_y))
