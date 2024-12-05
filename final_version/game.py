@@ -1,8 +1,8 @@
 import random
 import pygame
-from unit import Unit
 from board import Board
-from skill import Skill
+from unit import WarriorUnit, ArcherUnit, MageUnit
+from skill import DamageSkill, HealingSkill, BuffSkill
 
 from board import GRID_ROWS, GRID_COLS, CELL_SIZE
 
@@ -13,14 +13,17 @@ class Game:
         # Créer un plateau basé sur les dimensions globales
         self.board = Board(GRID_ROWS, GRID_COLS)
 
-        # Ajouter les unités
+        # Ajouter des unités pour le joueur et l'ennemi
         self.player_units = [
-            Unit(0, 0, 30, 5, 2, 'player', [Skill("Coup de poing", 10, 1, 0.8, 1)], speed=2),
-            Unit(1, 0, 20, 3, 1, 'player', [Skill("Flèche rapide", 12, 2, 0.9, 1)], speed=3)
+            WarriorUnit(0, 0, 'player'),
+            ArcherUnit(1, 0, 'player'),
+            MageUnit(2, 0, 'player')
         ]
+
         self.enemy_units = [
-            Unit(GRID_COLS - 1, GRID_ROWS - 1, 20, 3, 1, 'enemy', [Skill("Coup de poing", 10, 1, 0.8, 1)], speed=1),
-            Unit(GRID_COLS - 2, GRID_ROWS - 1, 15, 4, 1, 'enemy', [Skill("Flèche rapide", 12, 2, 0.9, 1)], speed=2)
+            WarriorUnit(GRID_COLS - 1, GRID_ROWS - 1, 'enemy'),
+            ArcherUnit(GRID_COLS - 2, GRID_ROWS - 1, 'enemy'),
+            MageUnit(GRID_COLS - 3, GRID_ROWS - 1, 'enemy')
         ]
 
         # Ajouter les unités au plateau

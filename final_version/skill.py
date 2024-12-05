@@ -22,3 +22,31 @@ class Skill:
 
     def calculate_damage(self, attacker, target):
         return max(0, self.power + attacker.attack_power - target.defense)
+
+class DamageSkill(Skill):
+    def __init__(self, name, power, range, accuracy, area_of_effect):
+        super().__init__(name, power, range, accuracy, area_of_effect)
+
+    def use(self, attacker, target, game):
+        super().use(attacker, target, game)  # Utilise la logique de base
+
+class HealingSkill(Skill):
+    def __init__(self, name, healing_amount, range, accuracy):
+        super().__init__(name, healing_amount, range, accuracy, area_of_effect=1)
+
+    def use(self, healer, target, game):
+        if random.random() < self.accuracy:
+            healing = self.power
+            target.health = min(target.max_health, target.health + healing)
+            print(f"{healer.team} unit heals {target.team} unit for {healing} HP.")
+
+class BuffSkill(Skill):
+    def __init__(self, name, stat_to_buff, buff_amount, range, duration):
+        super().__init__(name, power=0, range=range, accuracy=1, area_of_effect=1)
+        self.stat_to_buff = stat_to_buff
+        self.buff_amount = buff_amount
+        self.duration = duration
+
+    def use(self, caster, target, game):
+        setattr(target, self.stat_to_buff, getattr(target, self.stat_to_buff) + self.buff_amount)
+        print(f"{caster.team} unit buffs {target.team} unit's {self.stat_to_buff} by {self.buff_amount} for {self.duration} turns.")

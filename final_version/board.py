@@ -2,11 +2,11 @@ import pygame
 from cell import Cell
 
 # Dimensions du plateau
-GRID_ROWS = 16
-GRID_COLS = 16
+GRID_ROWS = 12
+GRID_COLS = 20
 
 # Taille des cases
-CELL_SIZE = 40
+CELL_SIZE = 60
 
 class Board:
     def __init__(self, rows, cols):
@@ -18,7 +18,7 @@ class Board:
             for col in range(GRID_COLS):
                 cell_color = (200, 200, 200) if self.cells[row][col].type == "empty" else (50, 50, 50)
                 pygame.draw.rect(screen, cell_color, (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-                pygame.draw.rect(screen, (0, 0, 0), (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE), 2)
+                pygame.draw.rect(screen, (0, 0, 0), (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE), 1)
 
                 unit = self.cells[row][col].unit
                 if unit:
