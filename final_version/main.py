@@ -1,10 +1,11 @@
 import pygame
 from game import Game
 import sys
+from board import GRID_ROWS, GRID_COLS, CELL_SIZE  # Importer les dimensions et la taille des cases
 
 # Initialisation de Pygame
 pygame.init()
-screen = pygame.display.set_mode((480, 480))
+screen = pygame.display.set_mode((GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE))
 pygame.display.set_caption("Jeu de stratégie")
 
 # Initialisation du jeu

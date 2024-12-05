@@ -4,30 +4,26 @@ from unit import Unit
 from board import Board
 from skill import Skill
 
+from board import GRID_ROWS, GRID_COLS, CELL_SIZE
 
 class Game:
     def __init__(self, screen):
         self.screen = screen
 
-        # Create skills
-        skill_1 = Skill(name="Coup de poing", power=10, range=1, accuracy=0.8, area_of_effect=1)
-        skill_2 = Skill(name="Flèche rapide", power=12, range=2, accuracy=0.9, area_of_effect=1)
+        # Créer un plateau basé sur les dimensions globales
+        self.board = Board(GRID_ROWS, GRID_COLS)
 
-        # Create player and enemy units
+        # Ajouter les unités
         self.player_units = [
-            Unit(0, 0, 30, 5, 2, 'player', [skill_1], speed=2),  # Warrior
-            Unit(1, 0, 20, 3, 1, 'player', [skill_2], speed=3)   # Archer
+            Unit(0, 0, 30, 5, 2, 'player', [Skill("Coup de poing", 10, 1, 0.8, 1)], speed=2),
+            Unit(1, 0, 20, 3, 1, 'player', [Skill("Flèche rapide", 12, 2, 0.9, 1)], speed=3)
         ]
-
         self.enemy_units = [
-            Unit(6, 6, 20, 3, 1, 'enemy', [skill_1], speed=1),   # Enemy Warrior
-            Unit(7, 6, 15, 4, 1, 'enemy', [skill_2], speed=2)    # Enemy Archer
+            Unit(GRID_COLS - 1, GRID_ROWS - 1, 20, 3, 1, 'enemy', [Skill("Coup de poing", 10, 1, 0.8, 1)], speed=1),
+            Unit(GRID_COLS - 2, GRID_ROWS - 1, 15, 4, 1, 'enemy', [Skill("Flèche rapide", 12, 2, 0.9, 1)], speed=2)
         ]
 
-        # Create game board
-        self.board = Board(8, 8)
-
-        # Add units to the board
+        # Ajouter les unités au plateau
         for unit in self.player_units + self.enemy_units:
             self.board.add_unit(unit)
 
@@ -86,7 +82,7 @@ class Game:
                             pygame.draw.rect(
                                 self.screen,
                                 (0, 255, 0),  # Vert pour la position temporaire
-                                (current_x * 60, current_y * 60, 60, 60),
+                                (current_x * CELL_SIZE, current_y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
                                 2
                             )
                             pygame.display.flip()
@@ -166,22 +162,29 @@ class Game:
 
 
     def display_movement_radius(self, unit, radius):
-        """Highlight the movement radius for a selected unit."""
+        """Affiche les cases accessibles autour de l'unité sélectionnée."""
+        from board import GRID_ROWS, GRID_COLS, CELL_SIZE  # Importer les dimensions et la taille des cases
+
         for dx in range(-radius, radius + 1):
             for dy in range(-radius, radius + 1):
                 target_x = unit.x + dx
                 target_y = unit.y + dy
                 distance = abs(dx) + abs(dy)
 
-                # Vérifie si la case est dans les limites et accessible
-                if 0 <= target_x < 8 and 0 <= target_y < 8 and distance <= radius:
+                # Vérifie si la case cible est dans les limites et accessible
+                if (0 <= target_x < GRID_COLS and
+                    0 <= target_y < GRID_ROWS and
+                    distance <= radius and
+                    self.board.cells[target_y][target_x].type != "obstacle" and
+                    self.board.cells[target_y][target_x].unit is None):
+                    
+                    # Dessiner un contour pour les cases accessibles
                     pygame.draw.rect(
                         self.screen,
-                        (100, 100, 255),  # Couleur bleue pour indiquer le rayon
-                        (target_x * 60, target_y * 60, 60, 60),
-                        2
+                        (100, 100, 255),  # Couleur bleue pour indiquer les cases accessibles
+                        (target_x * CELL_SIZE, target_y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
+                        2  # Épaisseur du contour
                     )
-        pygame.display.flip()
 
     def display_skill_menu(self, unit, available_skills):
         """Affiche un menu pour choisir une compétence pour l'unité sélectionnée."""

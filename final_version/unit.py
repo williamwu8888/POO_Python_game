@@ -1,4 +1,5 @@
 import pygame
+from board import CELL_SIZE
 
 class Unit:
     def __init__(self, x, y, health, attack_power, defense, team, skills=[], is_selected=False, speed=1):
@@ -14,18 +15,20 @@ class Unit:
         self.speed = speed  # Vitesse de déplacement (cases par tour)
 
     def move(self, dx, dy, board):
-        """Move unit on the board."""
+        """Déplace l'unité si la case cible est libre et valide."""
         new_x = self.x + dx
         new_y = self.y + dy
 
-        # Vérifie que le déplacement respecte la vitesse et que la case cible est vide
-        if 0 <= new_x < 8 and 0 <= new_y < 8 and board.cells[new_y][new_x].unit is None:
+        # Vérifie que la nouvelle position est dans les limites du plateau et que la case est libre
+        if (0 <= new_x < GRID_COLS and 0 <= new_y < GRID_ROWS and
+            board.cells[new_y][new_x].unit is None and
+            board.cells[new_y][new_x].type != "obstacle"):
             distance = abs(dx) + abs(dy)
-            if distance <= self.speed:  # Vérifie que le déplacement est dans la limite de la vitesse
-                board.remove_unit(self)  # Supprime l'unité de sa position actuelle
+            if distance <= self.speed:  # Respecte la vitesse de déplacement
+                board.remove_unit(self)
                 self.x = new_x
                 self.y = new_y
-                board.add_unit(self)  # Ajoute l'unité à la nouvelle position
+                board.add_unit(self)
 
     def attack(self, target, game):
         """Attack another unit."""
@@ -50,32 +53,24 @@ class Unit:
                 game.enemy_units.remove(self)
 
     def draw(self, screen):
-        """Dessine l'unité sur l'écran, avec une barre de vie et les HP restants."""
-        # Définir la couleur en fonction de l'équipe (bleu pour le joueur, rouge pour l'ennemi)
+        """Dessine l'unité avec la barre de vie."""
         color = (0, 0, 255) if self.team == 'player' else (255, 0, 0)
 
         # Dessiner le cercle représentant l'unité
-        pygame.draw.circle(screen, color, (self.x * 60 + 30, self.y * 60 + 25), 15) 
+        pygame.draw.circle(screen, color, (self.x * CELL_SIZE + CELL_SIZE // 2, self.y * CELL_SIZE + CELL_SIZE // 2), 10)
 
         # Dessiner la barre de vie
-        max_bar_width = 50  # Largeur de la barre
-        bar_height = 10     # Augmenter l'épaisseur de la barre
-        bar_x = self.x * 60 + 5  # Centré horizontalement
-        bar_y = self.y * 60 + 45  # Position sous l'unité
+        bar_width = CELL_SIZE - 10
+        bar_height = 10
+        bar_x = self.x * CELL_SIZE + 5
+        bar_y = self.y * CELL_SIZE + CELL_SIZE - 15
 
-        # Calculer la largeur proportionnelle aux HP restants
+        # Affichage de la barre et des HP
         hp_ratio = self.health / self.max_health
-        bar_width = int(max_bar_width * hp_ratio)
-
-        # Dessiner le contour de la barre
-        pygame.draw.rect(screen, (255, 255, 255), (bar_x, bar_y, max_bar_width, bar_height), 1)
-
-        # Dessiner la partie remplie (points de vie restants)
-        pygame.draw.rect(screen, (0, 255, 0), (bar_x, bar_y, bar_width, bar_height))
-
-        # Dessiner le texte des HP directement sur la barre
-        font = pygame.font.Font(None, 18)  # Police par défaut, taille 18
-        hp_text = font.render(f"{self.health}/{self.max_health}", True, (0, 0, 0))  # Texte noir pour contraste
-        text_x = bar_x + (max_bar_width - hp_text.get_width()) // 2  # Centrer le texte dans la barre
-        text_y = bar_y + (bar_height - hp_text.get_height()) // 2   # Centrer verticalement
+        pygame.draw.rect(screen, (0, 255, 0), (bar_x, bar_y, int(bar_width * hp_ratio), bar_height))
+        pygame.draw.rect(screen, (255, 255, 255), (bar_x, bar_y, bar_width, bar_height), 1)
+        font = pygame.font.Font(None, 18)
+        hp_text = font.render(f"{self.health}/{self.max_health}", True, (0, 0, 0))
+        text_x = bar_x + (bar_width - hp_text.get_width()) // 2
+        text_y = bar_y + (bar_height - hp_text.get_height()) // 2
         screen.blit(hp_text, (text_x, text_y))
