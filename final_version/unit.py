@@ -1,5 +1,5 @@
 import pygame
-from board import CELL_SIZE
+from board import GRID_ROWS, GRID_COLS, CELL_SIZE
 
 class Unit:
     def __init__(self, x, y, health, attack_power, defense, team, skills=[], is_selected=False, speed=1):

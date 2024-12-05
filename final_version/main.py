@@ -1,7 +1,7 @@
 import pygame
 from game import Game
 import sys
-from board import GRID_ROWS, GRID_COLS, CELL_SIZE  # Importer les dimensions et la taille des cases
+from board import GRID_ROWS, GRID_COLS, CELL_SIZE
 
 # Initialisation de Pygame
 pygame.init()
