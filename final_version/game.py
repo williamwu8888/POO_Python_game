@@ -1,10 +1,12 @@
 import random
 import pygame
 from board import Board
-from unit import WarriorUnit, ArcherUnit, MageUnit
-from skill import DamageSkill, HealingSkill, BuffSkill
+from unit import *
+from skill import *
 
 from board import GRID_ROWS, GRID_COLS, CELL_SIZE
+
+# Dans game.py
 
 class Game:
     def __init__(self, screen):
@@ -13,17 +15,24 @@ class Game:
         # Créer un plateau basé sur les dimensions globales
         self.board = Board(GRID_ROWS, GRID_COLS)
 
-        # Ajouter des unités pour le joueur et l'ennemi
+        # Ajouter des unités pour le joueur
         self.player_units = [
-            WarriorUnit(0, 0, 'player'),
-            ArcherUnit(1, 0, 'player'),
-            MageUnit(2, 0, 'player')
+            WarriorUnit(0, 3, 'player'),
+            KnightUnit(0, 4, 'player'),
+            ArcherUnit(0, 5, 'player'),
+            MageUnit(0, 6, 'player'),
+            HealerUnit(0, 7, 'player'),
+            SupportUnit(0, 8, 'player')
         ]
 
+        # Ajouter des unités pour l'ennemi
         self.enemy_units = [
-            WarriorUnit(GRID_COLS - 1, GRID_ROWS - 1, 'enemy'),
-            ArcherUnit(GRID_COLS - 2, GRID_ROWS - 1, 'enemy'),
-            MageUnit(GRID_COLS - 3, GRID_ROWS - 1, 'enemy')
+            WarriorUnit(GRID_COLS - 1, GRID_ROWS - 4, 'enemy'),
+            KnightUnit(GRID_COLS - 1, GRID_ROWS - 5, 'enemy'),
+            ArcherUnit(GRID_COLS - 1, GRID_ROWS - 6, 'enemy'),
+            MageUnit(GRID_COLS - 1, GRID_ROWS - 7, 'enemy'),
+            HealerUnit(GRID_COLS - 1, GRID_ROWS - 8, 'enemy'),
+            SupportUnit(GRID_COLS - 1, GRID_ROWS - 9, 'enemy')
         ]
 
         # Ajouter les unités au plateau
@@ -46,6 +55,10 @@ class Game:
     def handle_player_turn(self):
         """Handle the player's turn."""
         for selected_unit in self.player_units:
+            if selected_unit.stunned:
+                print(f"{selected_unit.team} unit is stunned and cannot act this turn.")
+                selected_unit.end_turn()  # Fin du tour, réinitialiser le stun
+                continue
             has_acted = False
             moves_left = selected_unit.speed  # Rayon de déplacement
             selected_unit.is_selected = True
@@ -121,6 +134,10 @@ class Game:
     def handle_enemy_turn(self):
         """Simple AI for enemies."""
         for enemy in self.enemy_units:
+            if enemy.stunned:
+                print(f"{enemy.team} unit is stunned and cannot act this turn.")
+                enemy.end_turn()  # Fin du tour, réinitialiser le stun
+                continue
             # Vérifie qu'il reste des cibles disponibles
             if not self.player_units:
                 print("L'IA a gagné, toutes les unités du joueur sont vaincues !")

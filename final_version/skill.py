@@ -28,9 +28,62 @@ class DamageSkill(Skill):
         super().__init__(name, power, range, accuracy, area_of_effect)
 
     def use(self, attacker, target, game):
-        super().use(attacker, target, game)  # Utilise la logique de base
+        if random.random() < self.accuracy:
+            damage = self.calculate_damage(attacker, target)
+            print(f"{attacker.team} unit uses {self.name} on {target.team}, dealing {damage} damage.")
+            target.receive_damage(damage, game)
+        else:
+            print(f"{attacker.team} unit missed with {self.name}!")
 
-class HealingSkill(Skill):
+class ShieldBash(Skill):
+    def __init__(self, name, power, range, accuracy):
+        super().__init__(name, power, range, accuracy, area_of_effect=1)
+
+    def use(self, attacker, target, game):
+        if random.random() < self.accuracy:
+            damage = self.calculate_damage(attacker, target)
+            print(f"{attacker.team} unit uses {self.name} on {target.team}, dealing {damage} damage and stunning!")
+            target.receive_damage(damage, game)
+            target.stunned = True  # Applique l'effet de stun
+        else:
+            print(f"{attacker.team} unit missed with {self.name}!")
+
+
+class BuffSkill(Skill):
+    def __init__(self, name, stat_to_buff, buff_amount, range):
+        super().__init__(name, power=0, range=range, accuracy=1, area_of_effect=1)
+        self.stat_to_buff = stat_to_buff
+        self.buff_amount = buff_amount
+
+    def use(self, caster, target, game):
+        setattr(target, self.stat_to_buff, getattr(target, self.stat_to_buff) + self.buff_amount)
+        print(f"{caster.team} unit buffs {target.team} unit's {self.stat_to_buff} by {self.buff_amount}.")
+
+class FireballSkill(Skill):
+    def __init__(self, name, power, range, accuracy):
+        super().__init__(name, power, range, accuracy, area_of_effect=1)
+
+    def use(self, attacker, target, game):
+        if random.random() < self.accuracy:
+            damage = self.calculate_damage(attacker, target)
+            print(f"{attacker.team} unit casts {self.name} on {target.team}, dealing {damage} damage.")
+            target.receive_damage(damage, game)
+        else:
+            print(f"{attacker.team} unit missed with {self.name}!")
+
+class ArrowShot(Skill):
+    def __init__(self, name, power, range, accuracy):
+        super().__init__(name, power, range, accuracy, area_of_effect=1)
+
+    def use(self, attacker, target, game):
+        if random.random() < self.accuracy:
+            damage = self.calculate_damage(attacker, target)
+            print(f"{attacker.team} unit shoots {self.name} at {target.team}, dealing {damage} damage.")
+            target.receive_damage(damage, game)
+        else:
+            print(f"{attacker.team} unit missed with {self.name}!")
+
+class HealSkill(Skill):
     def __init__(self, name, healing_amount, range, accuracy):
         super().__init__(name, healing_amount, range, accuracy, area_of_effect=1)
 
@@ -39,14 +92,3 @@ class HealingSkill(Skill):
             healing = self.power
             target.health = min(target.max_health, target.health + healing)
             print(f"{healer.team} unit heals {target.team} unit for {healing} HP.")
-
-class BuffSkill(Skill):
-    def __init__(self, name, stat_to_buff, buff_amount, range, duration):
-        super().__init__(name, power=0, range=range, accuracy=1, area_of_effect=1)
-        self.stat_to_buff = stat_to_buff
-        self.buff_amount = buff_amount
-        self.duration = duration
-
-    def use(self, caster, target, game):
-        setattr(target, self.stat_to_buff, getattr(target, self.stat_to_buff) + self.buff_amount)
-        print(f"{caster.team} unit buffs {target.team} unit's {self.stat_to_buff} by {self.buff_amount} for {self.duration} turns.")
