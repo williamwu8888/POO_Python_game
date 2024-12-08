@@ -89,7 +89,7 @@ class Game:
                         distance = abs(new_x - selected_unit.x) + abs(new_y - selected_unit.y)
 
                         # Vérifie si le mouvement est valide
-                        if (0 <= new_x < 8 and 0 <= new_y < 8 and
+                        if (0 <= new_x < GRID_ROWS and 0 <= new_y < GRID_COLS and
                             distance <= moves_left and
                             self.board.cells[new_y][new_x].unit is None):
                             current_x, current_y = new_x, new_y  # Met à jour la position temporaire
@@ -157,7 +157,7 @@ class Game:
                 new_x = enemy.x + dx
                 new_y = enemy.y + dy
 
-                if (0 <= new_x < 8 and 0 <= new_y < 8 and
+                if (0 <= new_x < GRID_ROWS and 0 <= new_y < GRID_COLS and
                     self.board.cells[new_y][new_x].unit is None and distance <= moves_left):
                     # Déplace l'unité ennemie
                     self.board.remove_unit(enemy)

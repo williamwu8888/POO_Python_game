@@ -98,7 +98,7 @@ class KnightUnit(BaseUnit):
     def __init__(self, x, y, team):
         icon = pygame.image.load('unit_icons/chevalier.png')
         icon = pygame.transform.scale(icon, (CELL_SIZE, CELL_SIZE))
-        super().__init__(x, y, health=50, attack_power=10, defense=8, team=team, icon=icon, speed=2)
+        super().__init__(x, y, health=50, attack_power=10, defense=8, team=team, icon=icon, speed=10)
         self.skills = [Skill("Shield Bash", 12, 1, 0.85, 1)]  # Attaque à courte portée avec effet de stun (dépend de la compétence)
 
 class ArcherUnit(BaseUnit):
