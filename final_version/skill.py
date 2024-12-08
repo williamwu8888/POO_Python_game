@@ -61,7 +61,7 @@ class BuffSkill(Skill):
 
 class FireballSkill(Skill):
     def __init__(self, name, power, range, accuracy):
-        super().__init__(name, power, range, accuracy, area_of_effect=1)
+        super().__init__(name, power, range, accuracy, area_of_effect=2)
 
     def use(self, attacker, target, game):
         if random.random() < self.accuracy:

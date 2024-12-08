@@ -92,39 +92,39 @@ class WarriorUnit(BaseUnit):
     def __init__(self, x, y, team):
         icon = pygame.image.load('unit_icons/guerrier.png')
         icon = pygame.transform.scale(icon, (CELL_SIZE, CELL_SIZE))
-        super().__init__(x, y, health=40, attack_power=7, defense=5, team=team, icon=icon, speed=2)
+        super().__init__(x, y, health=60, attack_power=6, defense=10, team=team, icon=icon, speed=2)
 
 class KnightUnit(BaseUnit):
     def __init__(self, x, y, team):
         icon = pygame.image.load('unit_icons/chevalier.png')
         icon = pygame.transform.scale(icon, (CELL_SIZE, CELL_SIZE))
-        super().__init__(x, y, health=50, attack_power=10, defense=8, team=team, icon=icon, speed=10)
+        super().__init__(x, y, health=45, attack_power=8, defense=6, team=team, icon=icon, speed=4)
         self.skills = [Skill("Shield Bash", 12, 1, 0.85, 1)]  # Attaque à courte portée avec effet de stun (dépend de la compétence)
 
 class ArcherUnit(BaseUnit):
     def __init__(self, x, y, team):
         icon = pygame.image.load('unit_icons/archer.png')
         icon = pygame.transform.scale(icon, (CELL_SIZE, CELL_SIZE))
-        super().__init__(x, y, health=25, attack_power=5, defense=2, team=team, icon=icon, speed=3)
+        super().__init__(x, y, health=40, attack_power=16, defense=2, team=team, icon=icon, speed=3)
         self.skills = [Skill("Arrow Shot", 10, 3, 0.9, 1)]
 
 class MageUnit(BaseUnit):
     def __init__(self, x, y, team):
         icon = pygame.image.load('unit_icons/mage.png')
         icon = pygame.transform.scale(icon, (CELL_SIZE, CELL_SIZE))
-        super().__init__(x, y, health=20, attack_power=8, defense=1, team=team, icon=icon, speed=2)
+        super().__init__(x, y, health=36, attack_power=16, defense=2, team=team, icon=icon, speed=3)
         self.skills = [Skill("Fireball", 15, 2, 0.8, 1)]
 
 class HealerUnit(BaseUnit):
     def __init__(self, x, y, team):
         icon = pygame.image.load('unit_icons/soigneur.png')
         icon = pygame.transform.scale(icon, (CELL_SIZE, CELL_SIZE))
-        super().__init__(x, y, health=30, attack_power=4, defense=3, team=team, icon=icon, speed=2)
+        super().__init__(x, y, health=42, attack_power=6, defense=6, team=team, icon=icon, speed=3)
         self.skills = [HealSkill("Heal", 15, 1, 0.95)]
 
 class SupportUnit(BaseUnit):
     def __init__(self, x, y, team):
         icon = pygame.image.load('unit_icons/support.png')
         icon = pygame.transform.scale(icon, (CELL_SIZE, CELL_SIZE))
-        super().__init__(x, y, health=25, attack_power=6, defense=4, team=team, icon=icon, speed=2)
+        super().__init__(x, y, health=38, attack_power=6, defense=6, team=team, icon=icon, speed=3)
         self.skills = [BuffSkill("Power Boost", "attack_power", 3, 3)]
