@@ -17,22 +17,22 @@ class Game:
 
         # Ajouter des unités pour le joueur
         self.player_units = [
-            WarriorUnit(0, 3, 'player'),
-            KnightUnit(0, 4, 'player'),
-            ArcherUnit(0, 5, 'player'),
-            MageUnit(0, 6, 'player'),
-            HealerUnit(0, 7, 'player'),
-            SupportUnit(0, 8, 'player')
+            WarriorUnit(0, (GRID_ROWS-6)//2, 'player'),
+            KnightUnit(0, (GRID_ROWS-6)//2 + 1, 'player'),
+            ArcherUnit(0, (GRID_ROWS-6)//2 +2, 'player'),
+            MageUnit(0, (GRID_ROWS-6)//2 +3, 'player'),
+            HealerUnit(0, (GRID_ROWS-6)//2 +4, 'player'),
+            SupportUnit(0, (GRID_ROWS-6)//2 +5, 'player')
         ]
 
         # Ajouter des unités pour l'ennemi
         self.enemy_units = [
-            WarriorUnit(GRID_COLS - 1, GRID_ROWS - 4, 'enemy'),
-            KnightUnit(GRID_COLS - 1, GRID_ROWS - 5, 'enemy'),
-            ArcherUnit(GRID_COLS - 1, GRID_ROWS - 6, 'enemy'),
-            MageUnit(GRID_COLS - 1, GRID_ROWS - 7, 'enemy'),
-            HealerUnit(GRID_COLS - 1, GRID_ROWS - 8, 'enemy'),
-            SupportUnit(GRID_COLS - 1, GRID_ROWS - 9, 'enemy')
+            WarriorUnit(GRID_COLS - 1, (GRID_ROWS-6)//2, 'enemy'),
+            KnightUnit(GRID_COLS - 1, (GRID_ROWS-6)//2 +1, 'enemy'),
+            ArcherUnit(GRID_COLS - 1, (GRID_ROWS-6)//2 +2, 'enemy'),
+            MageUnit(GRID_COLS - 1, (GRID_ROWS-6)//2 +3, 'enemy'),
+            HealerUnit(GRID_COLS - 1, (GRID_ROWS-6)//2 +4, 'enemy'),
+            SupportUnit(GRID_COLS - 1, (GRID_ROWS-6)//2 +5, 'enemy')
         ]
 
         # Ajouter les unités au plateau
@@ -53,14 +53,15 @@ class Game:
         return available_skills
 
     def handle_player_turn(self):
-        """Handle the player's turn."""
+        """Gère le tour du joueur avec sélection manuelle de la compétence et attaque au clavier."""
         for selected_unit in self.player_units:
             if selected_unit.stunned:
                 print(f"{selected_unit.team} unit is stunned and cannot act this turn.")
                 selected_unit.end_turn()  # Fin du tour, réinitialiser le stun
                 continue
+
             has_acted = False
-            moves_left = selected_unit.speed  # Rayon de déplacement
+            moves_left = selected_unit.speed
             selected_unit.is_selected = True
             current_x, current_y = selected_unit.x, selected_unit.y  # Position temporaire
             self.flip_display()
@@ -71,7 +72,6 @@ class Game:
                         pygame.quit()
                         exit()
 
-                    # Vérifie que l'événement est un appui sur une touche
                     if event.type == pygame.KEYDOWN:
                         dx, dy = 0, 0
                         if event.key == pygame.K_LEFT:
@@ -88,13 +88,13 @@ class Game:
                         new_y = current_y + dy
                         distance = abs(new_x - selected_unit.x) + abs(new_y - selected_unit.y)
 
-                        # Vérifie si le mouvement est valide
+                        # Vérifier si le mouvement est valide
                         if (0 <= new_x < GRID_COLS and 0 <= new_y < GRID_ROWS and
                             distance <= moves_left and
                             self.board.cells[new_y][new_x].unit is None):
-                            current_x, current_y = new_x, new_y  # Met à jour la position temporaire
-                            self.flip_display()  # Rafraîchir l'affichage
-                            self.display_movement_radius(selected_unit, moves_left)  # Afficher le rayon
+                            current_x, current_y = new_x, new_y
+                            self.flip_display()
+                            self.display_movement_radius(selected_unit, moves_left)
                             pygame.draw.rect(
                                 self.screen,
                                 (0, 255, 0),  # Vert pour la position temporaire
@@ -103,31 +103,70 @@ class Game:
                             )
                             pygame.display.flip()
 
-                        # Appuyer sur Espace pour valider le déplacement ou afficher les compétences
+                        # Espace pour valider le mouvement ou afficher la portée d'attaque
                         if event.key == pygame.K_SPACE:
-                            # Déplace l'unité vers la position finale
                             self.board.remove_unit(selected_unit)
                             selected_unit.x, selected_unit.y = current_x, current_y
                             self.board.add_unit(selected_unit)
                             self.flip_display()
 
-                            # Vérifie si au moins une compétence a une cible à portée
                             available_skills = self.get_available_skills(selected_unit)
                             if available_skills:
-                                # Affiche le menu des compétences
                                 chosen_skill = self.display_skill_menu(selected_unit, available_skills)
-                                if chosen_skill is not None:
-                                    # Appliquer la compétence sur un ennemi à portée
-                                    for enemy in self.enemy_units:
-                                        distance = abs(selected_unit.x - enemy.x) + abs(selected_unit.y - enemy.y)
-                                        if distance <= chosen_skill.range:
-                                            chosen_skill.use(selected_unit, enemy, self)
-                                            self.flip_display()
-                                            break
-                            else:
-                                print("Aucun ennemi à portée pour aucune compétence.")
+                                if chosen_skill:
+                                    # Filtrer les ennemis dans la portée
+                                    attackable_targets = self.get_attackable_targets(selected_unit)
 
-                            # Terminer le tour
+                                    if attackable_targets:
+                                        # Affiche la portée d'attaque
+                                        self.display_attack_radius(selected_unit, chosen_skill.range)
+
+                                        # Attente du joueur pour choisir la cible (au clavier)
+                                        target_chosen = False
+                                        current_target_idx = 0  # Index du curseur de la cible sélectionnée
+
+                                        # Filtrer les ennemis à portée
+                                        valid_targets = [target for target in attackable_targets
+                                                        if abs(target[0] - selected_unit.x) + abs(target[1] - selected_unit.y) <= chosen_skill.range]
+
+                                        # Afficher les ennemis à portée
+                                        while not target_chosen:
+                                            for event in pygame.event.get():
+                                                if event.type == pygame.QUIT:
+                                                    pygame.quit()
+                                                    exit()
+
+                                                if event.type == pygame.KEYDOWN:
+                                                    # Déplacer le curseur sur les cibles à portée
+                                                    if event.key == pygame.K_DOWN:
+                                                        current_target_idx = (current_target_idx + 1) % len(valid_targets)
+                                                    elif event.key == pygame.K_UP:
+                                                        current_target_idx = (current_target_idx - 1) % len(valid_targets)
+
+                                                    # Sélectionner une cible avec K_1
+                                                    if event.key == pygame.K_1:
+                                                        target_x, target_y = valid_targets[current_target_idx]
+                                                        target_unit = self.board.cells[target_y][target_x].unit
+                                                        if target_unit:
+                                                            print(f"Using {chosen_skill.name} on {target_unit.team} unit.")
+                                                            chosen_skill.use(selected_unit, target_unit, self)
+                                                            target_chosen = True
+                                                            self.flip_display()
+
+                                            # Redessiner la portée avec la cible sélectionnée
+                                            self.display_attack_radius(selected_unit, chosen_skill.range)
+                                            pygame.draw.rect(
+                                                self.screen,
+                                                (0, 0, 255),  # Vert pour indiquer la cible sélectionnée
+                                                (valid_targets[current_target_idx][0] * CELL_SIZE,
+                                                valid_targets[current_target_idx][1] * CELL_SIZE,
+                                                CELL_SIZE, CELL_SIZE),
+                                                3  # Épaisseur du contour pour le curseur
+                                            )
+                                            pygame.display.flip()
+
+                                else:
+                                    print("No skills available.")
                             has_acted = True
                             selected_unit.is_selected = False
 
@@ -180,6 +219,49 @@ class Game:
                     self.player_units.remove(target)
                     self.board.remove_unit(target)
 
+    def get_attackable_targets(self, unit):
+        """Retourne les cases où l'unité peut attaquer (en fonction des compétences)."""
+        attackable_targets = []
+        for skill in unit.skills:
+            # Utiliser la portée de la compétence, pas de l'unité
+            range_ = skill.range
+            for dx in range(-range_, range_ + 1):  # Vérifie la portée de l'attaque
+                for dy in range(-range_, range_ + 1):
+                    target_x = unit.x + dx
+                    target_y = unit.y + dy
+                    if (0 <= target_x < GRID_COLS and 0 <= target_y < GRID_ROWS):
+                        # Vérifie si une unité ennemie se trouve sur la case
+                        target_unit = self.board.cells[target_y][target_x].unit
+                        if target_unit and target_unit.team != unit.team:
+                            attackable_targets.append((target_x, target_y))
+        return attackable_targets
+
+    def display_attack_radius(self, unit, radius):
+        """Affiche les cases accessibles autour de l'unité sélectionnée, mais seulement celles occupées par des ennemis."""
+        from board import GRID_ROWS, GRID_COLS, CELL_SIZE  # Importer les dimensions et la taille des cases
+
+        for dx in range(-radius, radius + 1):
+            for dy in range(-radius, radius + 1):
+                target_x = unit.x + dx
+                target_y = unit.y + dy
+                distance = abs(dx) + abs(dy)
+
+                # Vérifie si la case cible est dans les limites et dans la portée d'attaque
+                if (0 <= target_x < GRID_COLS and
+                    0 <= target_y < GRID_ROWS and
+                    distance <= radius):
+                    
+                    target_unit = self.board.cells[target_y][target_x].unit
+
+                    # Vérifie si la case contient une unité ennemie
+                    if target_unit and target_unit.team != unit.team:
+                        # Dessiner un contour pour les cases contenant une cible ennemie
+                        pygame.draw.rect(
+                            self.screen,
+                            (255, 0, 0),  # Rouge pour indiquer les cibles ennemies à portée
+                            (target_x * CELL_SIZE, target_y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
+                            2  # Épaisseur du contour
+                        )
 
     def display_movement_radius(self, unit, radius):
         """Affiche les cases accessibles autour de l'unité sélectionnée."""
