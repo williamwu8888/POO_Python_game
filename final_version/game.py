@@ -130,6 +130,10 @@ class Game:
                             # Terminer le tour
                             has_acted = True
                             selected_unit.is_selected = False
+            
+            # Vérifier les conditions de victoire/défaite
+            if not self.enemy_units:
+                break
 
     def handle_enemy_turn(self):
         """Simple AI for enemies."""
@@ -179,6 +183,10 @@ class Game:
                     print(f"{target.team} unit defeated!")
                     self.player_units.remove(target)
                     self.board.remove_unit(target)
+            
+            # Vérifier les conditions de victoire/défaite
+            if not self.player_units:
+                break
 
 
     def display_movement_radius(self, unit, radius):
