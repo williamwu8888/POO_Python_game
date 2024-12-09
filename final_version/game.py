@@ -106,9 +106,6 @@ class Game:
                                 2
                             )
                             pygame.display.flip()
-
-                        # Espace pour valider le mouvement ou afficher la portée d'attaque
-                        if event.key == pygame.K_SPACE:
                         else:
                             print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y)}")
 
