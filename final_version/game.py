@@ -5,7 +5,7 @@ from unit import *
 from skill import *
 
 from board import GRID_ROWS, GRID_COLS, CELL_SIZE
-
+from wall import generate_walls, draw_walls
 # Dans game.py
 
 class Game:
@@ -34,6 +34,12 @@ class Game:
             HealerUnit(GRID_COLS - 1, (GRID_ROWS-6)//2 +4, 'enemy'),
             SupportUnit(GRID_COLS - 1, (GRID_ROWS-6)//2 +5, 'enemy')
         ]
+
+        # Générer les murs
+        self.walls = generate_walls(
+            self.board,
+            [(unit.x, unit.y) for unit in self.player_units],
+            [(unit.x, unit.y) for unit in self.enemy_units])
 
         # Ajouter les unités au plateau
         for unit in self.player_units + self.enemy_units:
@@ -88,10 +94,8 @@ class Game:
                         new_y = current_y + dy
                         distance = abs(new_x - selected_unit.x) + abs(new_y - selected_unit.y)
 
-                        # Vérifier si le mouvement est valide
-                        if (0 <= new_x < GRID_COLS and 0 <= new_y < GRID_ROWS and
-                            distance <= moves_left and
-                            self.board.cells[new_y][new_x].unit is None):
+                        if self.board.is_traversable(new_x, new_y) and distance <= moves_left:
+                            print(f"Moving to ({new_x}, {new_y})")
                             current_x, current_y = new_x, new_y
                             self.flip_display()
                             self.display_movement_radius(selected_unit, moves_left)
@@ -105,6 +109,13 @@ class Game:
 
                         # Espace pour valider le mouvement ou afficher la portée d'attaque
                         if event.key == pygame.K_SPACE:
+                        else:
+                            print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y)}")
+
+
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                        # 确认当前目标不是墙壁
+                        if self.board.is_traversable(current_x, current_y):
                             self.board.remove_unit(selected_unit)
                             selected_unit.x, selected_unit.y = current_x, current_y
                             self.board.add_unit(selected_unit)
@@ -169,7 +180,9 @@ class Game:
                                     print("No skills available.")
                             has_acted = True
                             selected_unit.is_selected = False
-            
+                        else:
+                            print("Cannot move to wall position!")
+
             # Vérifier les conditions de victoire/défaite
             if not self.enemy_units:
                 break
@@ -200,13 +213,14 @@ class Game:
                 new_x = enemy.x + dx
                 new_y = enemy.y + dy
 
-                if (0 <= new_x < GRID_COLS and 0 <= new_y < GRID_ROWS and
-                    self.board.cells[new_y][new_x].unit is None and distance <= moves_left):
-                    # Déplace l'unité ennemie
+                if (0 <= new_x < GRID_COLS and
+                    0 <= new_y < GRID_ROWS and
+                    self.board.cells[new_y][new_x].type != "wall" and
+                    self.board.cells[new_y][new_x].unit is None):
                     self.board.remove_unit(enemy)
                     enemy.x, enemy.y = new_x, new_y
                     self.board.add_unit(enemy)
-                    moves_left -= distance
+                    moves_left -= 1
                     self.flip_display()
                 else:
                     # Si le mouvement n'est pas valide, casse la boucle
@@ -324,4 +338,5 @@ class Game:
         """Display the game."""
         self.screen.fill((0, 0, 0))  # Black background
         self.board.display(self.screen)
+        draw_walls(self.screen, self.walls, CELL_SIZE)
         pygame.display.flip()
