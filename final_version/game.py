@@ -177,11 +177,7 @@ class Game:
                 target_y = unit.y + dy
                 distance = abs(dx) + abs(dy)
                 # Vérifier si l’emplacement cible est à l’intérieur des limites et peut être traversé
-                if (0 <= target_x < GRID_COLS and
-                    0 <= target_y < GRID_ROWS and
-                    distance <= radius and
-                    self.board.cells[target_y][target_x].traversable):
-                    
+                if self.board.is_traversable(target_x, target_y) and distance <= radius:
                     pygame.draw.rect(
                         self.screen,
                         (100, 100, 255),  # Utilisez le bleu pour les cases à déplacer
