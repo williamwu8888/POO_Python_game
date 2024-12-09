@@ -31,3 +31,15 @@ class Board:
     def remove_unit(self, unit):
         """Remove the unit from the board."""
         self.cells[unit.y][unit.x].unit = None
+
+    def is_traversable(self, x, y):
+        """
+        Vérifie si une cellule est traversable.
+        """
+        if x < 0 or x >= GRID_COLS or y < 0 or y >= GRID_ROWS:
+            print(f"Cell ({x}, {y}): Out of bounds")
+            return False
+        cell = self.cells[y][x]
+        traversable = cell.type != "wall" and cell.unit is None
+        print(f"Cell ({x}, {y}): type={cell.type}, unit={cell.unit}, traversable={traversable}")
+        return traversable
