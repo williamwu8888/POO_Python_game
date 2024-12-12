@@ -37,9 +37,9 @@ class Board:
         Vérifie si une cellule est traversable.
         """
         if x < 0 or x >= GRID_COLS or y < 0 or y >= GRID_ROWS:
-            print(f"Cell ({x}, {y}): Out of bounds")
+            
             return False
         cell = self.cells[y][x]
         traversable = cell.type != "wall" and cell.unit is None
-        print(f"Cell ({x}, {y}): type={cell.type}, unit={cell.unit}, traversable={traversable}")
+        
         return traversable

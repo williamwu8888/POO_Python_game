@@ -1,5 +1,6 @@
 import pygame
 from game import Game
+from startpage import start_screen
 import sys
 from board import GRID_ROWS, GRID_COLS, CELL_SIZE
 
@@ -8,11 +9,10 @@ pygame.init()
 screen = pygame.display.set_mode((GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE))
 pygame.display.set_caption("Jeu de stratégie")
 
-# Initialisation du jeu
-game = Game(screen)
 
 # Boucle principale
 def main_loop():
+    game = Game(screen)
     running = True
     while running:
         for event in pygame.event.get():
@@ -40,4 +40,5 @@ def main_loop():
 
 # Lancer le jeu
 if __name__ == "__main__":
-    main_loop()
+    if start_screen():
+        main_loop()

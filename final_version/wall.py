@@ -28,7 +28,7 @@ def generate_walls(board, player_positions, enemy_positions):
         for col in range(GRID_COLS):
             if board.cells[row][col].unit is not None or is_safe_position(col, row, all_units_positions):
                 continue
-            if random.random() < 0.3:  # Adjust probability as needed
+            if random.random() < 0.15:  # Adjust probability as needed
                 board.cells[row][col].type = "wall"
                 board.cells[row][col].traversable = False
                 walls.append(Wall(col, row, board))  # Pass the board here

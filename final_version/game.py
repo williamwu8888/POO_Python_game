@@ -65,9 +65,9 @@ class Game:
         """Handle the player's turn."""
         for selected_unit in self.player_units:
             if selected_unit.stunned:
-                print(f"{selected_unit.team} unit is stunned and cannot act this turn.")
                 selected_unit.end_turn()
                 continue
+
             has_acted = False
             moves_left = selected_unit.speed
             selected_unit.is_selected = True
@@ -96,7 +96,6 @@ class Game:
                         distance = abs(new_x - selected_unit.x) + abs(new_y - selected_unit.y)
 
                         if self.board.is_traversable(new_x, new_y) and distance <= moves_left:
-                            print(f"Moving to ({new_x}, {new_y})")
                             current_x, current_y = new_x, new_y
                             self.flip_display()
                             self.display_movement_radius(selected_unit, moves_left)
@@ -107,12 +106,10 @@ class Game:
                                 2
                             )
                             pygame.display.flip()
-                        else:
-                            print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y)}")
 
 
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                        # 确认当前目标不是墙壁
+                        # Vérifiez que la cible actuelle n’est pas un mur
                         if self.board.is_traversable(current_x, current_y):
                             self.board.remove_unit(selected_unit)
                             selected_unit.x, selected_unit.y = current_x, current_y
@@ -120,8 +117,6 @@ class Game:
                             self.flip_display()
                             has_acted = True
                             selected_unit.is_selected = False
-                        else:
-                            print("Cannot move to wall position!")
 
 
 
@@ -150,7 +145,7 @@ class Game:
 
                 if (0 <= new_x < GRID_COLS and
                     0 <= new_y < GRID_ROWS and
-                    self.board.cells[new_y][new_x].type != "wall" and  # 增加对墙壁的检测
+                    self.board.cells[new_y][new_x].type != "wall" and  # détection des murs
                     self.board.cells[new_y][new_x].unit is None):
                     self.board.remove_unit(enemy)
                     enemy.x, enemy.y = new_x, new_y
@@ -176,6 +171,7 @@ class Game:
                 target_x = unit.x + dx
                 target_y = unit.y + dy
                 distance = abs(dx) + abs(dy)
+                
                 # Vérifier si l’emplacement cible est à l’intérieur des limites et peut être traversé
                 if self.board.is_traversable(target_x, target_y) and distance <= radius:
                     pygame.draw.rect(
