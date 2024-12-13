@@ -7,7 +7,7 @@ from board import GRID_ROWS, GRID_COLS, CELL_SIZE
 from wall import generate_walls, draw_walls
 
 class Game:
-    def __init__(self, screen, mode='PVP'):
+    def __init__(self, screen, mode='PVE'):
         self.screen = screen
         self.mode = mode  # Ajout pour différencier les modes PVP et PVE
 
@@ -43,7 +43,9 @@ class Game:
         # Ajouter les unités au plateau
         for unit in self.player_units + self.enemy_units:
             self.board.add_unit(unit)
-            
+
+        self.current_team = 'player'  # Débuter avec le joueur 1
+
     def flip_display(self):
         """Mettre à jour l'affichage du jeu."""
         self.screen.fill((0, 0, 0))  # Fond noir
@@ -51,9 +53,26 @@ class Game:
         draw_walls(self.screen, self.walls, CELL_SIZE)  # Affiche les murs
         pygame.display.flip()  # Met à jour l'écran
 
+    def handle_turn(self):
+        """Gérer le tour basé sur le mode."""
+        if self.mode == 'PVE':
+            self.handle_player_turn()  # Gérer le tour du joueur
+            self.handle_enemy_turn()  # Gérer le tour de l'IA
+        elif self.mode == 'PVP':
+            if self.current_team == 'player':
+                self.handle_player_turn()
+                self.current_team = 'player2'
+            elif self.current_team == 'player2':
+                self.handle_team_turn(self.enemy_units)  # P2 utilise les mêmes touches que P1
+                self.current_team = 'player'
+
     def handle_player_turn(self):
         """Gérer le tour des joueurs."""
-        for selected_unit in self.player_units:
+        self.handle_team_turn(self.player_units)
+
+    def handle_team_turn(self, team_units):
+        """Gérer le tour d'une équipe donnée."""
+        for selected_unit in team_units:
             if selected_unit.stunned:
                 selected_unit.end_turn()
                 continue
@@ -106,75 +125,12 @@ class Game:
                             has_acted = True
                             selected_unit.is_selected = False
 
-    def handle_second_player_turn(self):
-        """Gérer le tour du second joueur dans le mode PVP."""
-        for selected_unit in self.enemy_units:
-            if selected_unit.team != 'player2':  # Assurez-vous que cette unité appartient bien au joueur 2
-                continue
-
-            if selected_unit.stunned:
-                selected_unit.end_turn()
-                continue
-
-            has_acted = False
-            moves_left = selected_unit.speed
-            selected_unit.is_selected = True
-            current_x, current_y = selected_unit.x, selected_unit.y
-            self.flip_display()
-
-            while not has_acted:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        exit()
-
-                    if event.type == pygame.KEYDOWN:
-                        dx, dy = 0, 0
-                        if event.key == pygame.K_a:  # Déplacement vers la gauche
-                            dx = -1
-                        elif event.key == pygame.K_d:  # Déplacement vers la droite
-                            dx = 1
-                        elif event.key == pygame.K_w:  # Déplacement vers le haut
-                            dy = -1
-                        elif event.key == pygame.K_s:  # Déplacement vers le bas
-                            dy = 1
-
-                        new_x = current_x + dx
-                        new_y = current_y + dy
-                        distance = abs(new_x - selected_unit.x) + abs(new_y - selected_unit.y)
-
-                        if self.board.is_traversable(new_x, new_y) and distance <= moves_left:
-                            current_x, current_y = new_x, new_y
-                            self.flip_display()
-                            self.display_movement_radius(selected_unit, moves_left)
-                            pygame.draw.rect(
-                                self.screen,
-                                (0, 255, 0),  # Vert pour la position actuelle
-                                (current_x * CELL_SIZE, current_y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
-                                2
-                            )
-                            pygame.display.flip()
-
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                        if self.board.is_traversable(current_x, current_y):
-                            self.board.remove_unit(selected_unit)
-                            selected_unit.x, selected_unit.y = current_x, current_y
-                            self.board.add_unit(selected_unit)
-                            self.flip_display()
-                            has_acted = True
-                            selected_unit.is_selected = False
-
     def handle_enemy_turn(self):
         """Gérer le tour de l'ennemi dans le mode PVE."""
         for enemy in self.enemy_units:
             if enemy.stunned:
-                print(f"{enemy.team} unit is stunned and cannot act this turn.")
                 enemy.end_turn()
                 continue
-
-            if not self.player_units:
-                print("L'IA a gagné, toutes les unités du joueur sont vaincues !")
-                return
 
             # Sélectionner une cible
             target = random.choice(self.player_units)
@@ -191,9 +147,9 @@ class Game:
 
                 # Vérifier si l'emplacement est traversable
                 if (0 <= new_x < GRID_COLS and
-                    0 <= new_y < GRID_ROWS and
-                    self.board.cells[new_y][new_x].type != "wall" and
-                    self.board.cells[new_y][new_x].unit is None):
+                        0 <= new_y < GRID_ROWS and
+                        self.board.cells[new_y][new_x].type != "wall" and
+                        self.board.cells[new_y][new_x].unit is None):
                     self.board.remove_unit(enemy)
                     enemy.x, enemy.y = new_x, new_y
                     self.board.add_unit(enemy)
@@ -207,10 +163,8 @@ class Game:
             enemy.attack(target, self)
             self.flip_display()
             if target.health <= 0:
-                print(f"{target.team} unit defeated!")
                 self.player_units.remove(target)
                 self.board.remove_unit(target)
-
 
     def display_movement_radius(self, unit, radius):
         """Afficher le rayon de mouvement possible d'une unité."""
@@ -219,19 +173,10 @@ class Game:
                 target_x = unit.x + dx
                 target_y = unit.y + dy
                 distance = abs(dx) + abs(dy)
-                # Vérifier si l'emplacement cible est à l'intérieur des limites et peut être traversé
                 if self.board.is_traversable(target_x, target_y) and distance <= radius:
                     pygame.draw.rect(
                         self.screen,
                         (100, 100, 255),  # Bleu pour les cases accessibles
                         (target_x * CELL_SIZE, target_y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
-                        2  # Épaisseur de la bordure
+                        2
                     )
-
-    def handle_turn(self):
-        """Gérer le tour basé sur le mode."""
-        self.handle_player_turn()  # Joueur 1
-        if self.mode == 'PVE':
-            self.handle_enemy_turn()  # AI pour PVE
-        elif self.mode == 'PVP':
-            self.handle_second_player_turn()  # Joueur 2 pour PVP
