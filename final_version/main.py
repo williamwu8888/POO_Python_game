@@ -11,8 +11,8 @@ pygame.display.set_caption("Jeu de stratégie")
 
 
 # Boucle principale
-def main_loop():
-    game = Game(screen)
+def main_loop(mode="PVE"):  # Ajout d'un paramètre pour le mode
+    game = Game(screen, mode)  # Transmet le mode à l'instance du jeu
     running = True
     while running:
         for event in pygame.event.get():
@@ -21,8 +21,11 @@ def main_loop():
                 pygame.quit()
                 sys.exit()
 
-        # Tour du joueur
-        game.handle_player_turn()
+        # Gérer les tours selon le mode
+        if mode == "PVE":
+            game.handle_turn()  # Inclut le tour du joueur et de l'IA
+        elif mode == "PVP":
+            game.handle_turn()  # Inclut le tour des deux joueurs
 
         # Vérifier les conditions de victoire/défaite
         if not game.enemy_units:
@@ -32,13 +35,13 @@ def main_loop():
             print("Défaite !")
             running = False
 
-        # Tour des ennemis
-        game.handle_enemy_turn()
-
         # Affichage
         game.flip_display()
 
+
 # Lancer le jeu
 if __name__ == "__main__":
-    if start_screen():
-        main_loop()
+    # Obtenir le mode de jeu depuis l'écran de démarrage
+    selected_mode = start_screen()
+    if selected_mode:
+        main_loop(selected_mode)
