@@ -202,5 +202,3 @@ class SupportUnit(BaseUnit):
                                         placing = False
                                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                                     placing = False
-
-
