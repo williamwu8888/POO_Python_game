@@ -92,3 +92,16 @@ class HealSkill(Skill):
             healing = self.power
             target.health = min(target.max_health, target.health + healing)
             print(f"{healer.team} unit heals {target.team} unit for {healing} HP.")
+
+class PlaceRiverSkill(Skill):
+    def __init__(self, name, range, accuracy):
+        super().__init__(name, power=0, range=range, accuracy=1, area_of_effect=1)
+
+    def use(self, unit, target, game):
+        target_cell = game.board.cells[target[1]][target[0]]
+        if target_cell.unit is None and target_cell.type != "wall":
+            target_cell.type = "river"
+            target_cell.traversable = False
+            print(f"Rivière placée à ({target[0]}, {target[1]}). Traversable: {target_cell.traversable}, Type: {target_cell.type}")
+        else:
+            print(f"Impossible de placer la rivière à ({target[0]}, {target[1]}), Type: {target_cell.type}.")

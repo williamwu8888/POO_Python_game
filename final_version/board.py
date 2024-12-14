@@ -33,13 +33,9 @@ class Board:
         self.cells[unit.y][unit.x].unit = None
 
     def is_traversable(self, x, y):
-        """
-        Vérifie si une cellule est traversable.
-        """
         if x < 0 or x >= GRID_COLS or y < 0 or y >= GRID_ROWS:
-            
             return False
         cell = self.cells[y][x]
-        traversable = cell.type != "wall" and cell.unit is None
-        
+        traversable = cell.type not in ["wall", "river"] and cell.unit is None
         return traversable
+

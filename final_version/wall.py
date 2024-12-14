@@ -75,12 +75,23 @@ def ensure_connectivity(board):
             if board.cells[row][col].type == "wall" and not visited[row][col]:
                 board.cells[row][col].type = "empty"
 
-def draw_walls(screen, walls, cell_size):
-    for wall in walls:
-        if not wall.traversable:  # Only draw walls that are not traversable
-            pygame.draw.rect(
-                screen,
-                (50, 50, 50),  # Dark gray color for walls
-                (wall.x * cell_size, wall.y * cell_size, cell_size, cell_size)
-            )
+def draw_walls(screen, board, cell_size):
+
+    for row in range(GRID_ROWS):
+        for col in range(GRID_COLS):
+            cell = board.cells[row][col]
+            if cell.type == "wall":
+                pygame.draw.rect(
+                    screen,
+                    (50, 50, 50),  
+                    (col * cell_size, row * cell_size, cell_size, cell_size)
+                )
+            elif cell.type == "river":  
+                pygame.draw.rect(
+                    screen,
+                    (0, 0, 255),  
+                    (col * cell_size, row * cell_size, cell_size, cell_size)
+                )
+
+
 
