@@ -146,9 +146,7 @@ class HealerUnit(BaseUnit):
 
 class SupportUnit(BaseUnit):
     def __init__(self, x, y, team):
-        icon = pygame.image.load('unit_icons/support.png')
-        icon = pygame.transform.scale(icon, (CELL_SIZE, CELL_SIZE))
-        super().__init__(x, y, health=38, attack_power=6, defense=6, team=team, icon=icon, speed=3)
+        super().__init__(x, y, health=38, attack_power=6, defense=6, team=team, icon_path='support', speed=3)
         self.skills = [
             BuffSkill("Power Boost", "attack_power", 3, 3),
             PlaceRiverSkill("Place River", range=1, accuracy=1)  # Ajoute la compétence pour placer une rivière

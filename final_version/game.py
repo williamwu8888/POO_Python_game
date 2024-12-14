@@ -130,9 +130,9 @@ class Game:
                                 chosen_skill = self.display_skill_menu(selected_unit, available_skills)
                                 if chosen_skill.name != "Heal":
                                     # Filtrer les ennemis dans la portée
-                                    attackable_targets = self.get_attackable_targets(selected_unit)
+                                    attackable_targets = self.get_attackable_targets(selected_unit, chosen_skill)
 
-                                    if attackable_targets:
+                                    if attackable_targets :
                                         # Affiche la portée d'attaque
                                         self.display_attack_radius(selected_unit, chosen_skill.range)
 
@@ -179,6 +179,7 @@ class Game:
                                                 3  # Épaisseur du contour pour le curseur
                                             )
                                             pygame.display.flip()
+                                            
                                 elif chosen_skill.name == "Heal":
                                     # Filtrer les ennemis dans la portée
                                     heal_targets = self.get_heal_targets(selected_unit)
@@ -230,7 +231,38 @@ class Game:
                                                 3  # Épaisseur du contour pour le curseur
                                             )
                                             pygame.display.flip()
+                                elif chosen_skill.name == "Place River":
+                                    adjacent_cells = [(self.x + dx, self.y + dy) for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]]
+                                    valid_cells = [cell for cell in adjacent_cells if 0 <= cell[0] < GRID_COLS and 0 <= cell[1] < GRID_ROWS \
+                                                and self.board.cells[cell[1]][cell[0]].unit is None and self.board.cells[cell[1]][cell[0]].type != "wall"]
+                                    if valid_cells:
+                                        # Dessine les options de placement
+                                        for cell in valid_cells:
+                                            pygame.draw.rect(
+                                                self.board.screen,
+                                                (0, 255, 255),
+                                                (cell[0] * CELL_SIZE, cell[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE),
+                                                2
+                                            )
+                                        pygame.display.flip()
 
+                                        placing = True
+                                        while placing:
+                                            for event in pygame.event.get():
+                                                if event.type == pygame.QUIT:
+                                                    pygame.quit()
+                                                    exit()
+                                                elif event.type == pygame.MOUSEBUTTONDOWN:
+                                                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                                                    target_x = mouse_x // CELL_SIZE
+                                                    target_y = mouse_y // CELL_SIZE
+                                                    if (target_x, target_y) in valid_cells:
+                                                        self.board.cells[target_y][target_x].type = "river"
+                                                        self.board.cells[target_y][target_x].traversable = False
+                                                        print(f"Rivière placée à ({target_x}, {target_y}).")
+                                                        placing = False
+                                                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                                                    placing = False
                                 else:
                                     print("No skills available.")
                             has_acted = True
