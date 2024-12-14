@@ -103,19 +103,19 @@ class Game:
                         new_y = current_y + dy
                         distance = abs(new_x - selected_unit.x) + abs(new_y - selected_unit.y)
 
-                        if self.board.is_traversable(new_x, new_y) and distance <= moves_left:
+                        if self.board.is_traversable(new_x, new_y,current_x, current_y) and distance <= moves_left:
                             print(f"Moving to ({new_x}, {new_y})")
                             current_x, current_y = new_x, new_y
                             self.flip_display()
                             self.display_movement_radius(selected_unit, moves_left)
                         else:
-                            print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y)}")
+                            print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y,current_x, current_y)}")
                             new_x,new_y = current_x,current_y #Returner la position cible à la position actuelle pour éviter de pas pouvoir se bouger
 
 
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                         # Confirmant que la position cible n'est pas un mur
-                        if self.board.is_traversable(current_x, current_y):
+                        if self.board.is_another_unit(current_x, current_y,selected_unit):
                             self.board.remove_unit(selected_unit)
                             selected_unit.x, selected_unit.y = current_x, current_y
                             self.board.add_unit(selected_unit)
@@ -124,7 +124,7 @@ class Game:
                             available_skills = self.get_available_skills(selected_unit)
                             if available_skills:
                                 chosen_skill = self.display_skill_menu(selected_unit, available_skills)
-                                if chosen_skill:
+                                if chosen_skill.name != "Heal":
                                     # Filtrer les ennemis dans la portée
                                     attackable_targets = self.get_attackable_targets(selected_unit)
 
@@ -141,6 +141,57 @@ class Game:
                                                         if abs(target[0] - selected_unit.x) + abs(target[1] - selected_unit.y) <= chosen_skill.range]
 
                                         # Afficher les ennemis à portée
+                                        while not target_chosen:
+                                            for event in pygame.event.get():
+                                                if event.type == pygame.QUIT:
+                                                    pygame.quit()
+                                                    exit()
+
+                                                if event.type == pygame.KEYDOWN:
+                                                    # Déplacer le curseur sur les cibles à portée
+                                                    if event.key == pygame.K_DOWN:
+                                                        current_target_idx = (current_target_idx + 1) % len(valid_targets)
+                                                    elif event.key == pygame.K_UP:
+                                                        current_target_idx = (current_target_idx - 1) % len(valid_targets)
+
+                                                    # Sélectionner une cible avec K_1
+                                                    if event.key == pygame.K_1:
+                                                        target_x, target_y = valid_targets[current_target_idx]
+                                                        target_unit = self.board.cells[target_y][target_x].unit
+                                                        if target_unit:
+                                                            print(f"Using {chosen_skill.name} on {target_unit.team} unit.")
+                                                            chosen_skill.use(selected_unit, target_unit, self)
+                                                            target_chosen = True
+                                                            self.flip_display()
+
+                                            # Redessiner la portée avec la cible sélectionnée
+                                            self.display_attack_radius(selected_unit, chosen_skill.range)
+                                            pygame.draw.rect(
+                                                self.screen,
+                                                (0, 0, 255),  # Bleu pour indiquer la cible sélectionnée
+                                                (valid_targets[current_target_idx][0] * CELL_SIZE,
+                                                valid_targets[current_target_idx][1] * CELL_SIZE,
+                                                CELL_SIZE, CELL_SIZE),
+                                                3  # Épaisseur du contour pour le curseur
+                                            )
+                                            pygame.display.flip()
+                                elif chosen_skill.name == "Heal":
+                                    # Filtrer les ennemis dans la portée
+                                    heal_targets = self.get_heal_targets(selected_unit)
+
+                                    if attackable_targets:
+                                        # Affiche la portée pour être gueris
+                                        self.display_attack_radius(selected_unit, chosen_skill.range)
+
+                                        # Attente du joueur pour choisir la cible (au clavier)
+                                        target_chosen = False
+                                        current_target_idx = 0  # Index du curseur de la cible sélectionnée
+
+                                        # Filtrer les allies à portée
+                                        valid_targets = [target for target in heal_targets
+                                                        if abs(target[0] - selected_unit.x) + abs(target[1] - selected_unit.y) <= chosen_skill.range]
+
+                                        # Afficher les allies à portée
                                         while not target_chosen:
                                             for event in pygame.event.get():
                                                 if event.type == pygame.QUIT:
@@ -257,6 +308,23 @@ class Game:
                         if target_unit and target_unit.team != unit.team:
                             attackable_targets.append((target_x, target_y))
         return attackable_targets
+    
+    def get_heal_targets(self, unit):
+        """Retourne les cases où l'unité peut gueri."""
+        heal_targets = []
+        for skill in unit.skills:
+            # Utiliser la portée de la compétence, pas de l'unité
+            range_ = skill.range
+            for dx in range(-range_, range_ + 1):  # Vérifie la portée de l'attaque
+                for dy in range(-range_, range_ + 1):
+                    target_x = unit.x + dx
+                    target_y = unit.y + dy
+                    if (0 <= target_x < GRID_COLS and 0 <= target_y < GRID_ROWS):
+                        # Vérifie si une unité allie se trouve sur la case
+                        target_unit = self.board.cells[target_y][target_x].unit
+                        if target_unit and target_unit.team == unit.team:
+                            heal_targets.append((target_x, target_y))
+        return heal_targets
 
     def display_attack_radius(self, unit, radius):
         """Affiche les cases accessibles autour de l'unité sélectionnée, mais seulement celles occupées par des ennemis."""

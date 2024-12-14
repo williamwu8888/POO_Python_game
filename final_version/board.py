@@ -32,14 +32,32 @@ class Board:
         """Remove the unit from the board."""
         self.cells[unit.y][unit.x].unit = None
 
-    def is_traversable(self, x, y):
+    def is_traversable(self, x, y,x0,y0):
         """
-        Vérifie si une cellule est traversable.
+        Vérifie si une cellule est traversable (sans murs).
         """
         if x < 0 or x >= GRID_COLS or y < 0 or y >= GRID_ROWS:
             print(f"Cell ({x}, {y}): Out of bounds")
             return False
         cell = self.cells[y][x]
-        traversable = cell.type != "wall" and cell.unit is None
+        if x != x0 or y != y0:
+            traversable = cell.type != "wall" #and cell.unit is None
+        else:
+            traversable = True
         print(f"Cell ({x}, {y}): type={cell.type}, unit={cell.unit}, traversable={traversable}")
         return traversable
+    
+    def is_another_unit(self, x, y,selected_unit):
+        """
+        Vérifie si une cellule est occupable (pas de unite dans la cellule).
+        """
+        if x < 0 or x >= GRID_COLS or y < 0 or y >= GRID_ROWS:
+            print(f"Cell ({x}, {y}): Out of bounds")
+            return False
+        cell = self.cells[y][x]
+        if x != selected_unit.x or y != selected_unit.y:
+            occupable = cell.unit is None
+        else:
+            occupable = True
+        print(f"Cell ({x}, {y}): type={cell.type}, unit={cell.unit}, occupable={occupable}")
+        return occupable
