@@ -74,6 +74,15 @@ class Game:
 
             while not has_acted:
                 for event in pygame.event.get():
+                    self.display_movement_radius(selected_unit, moves_left)
+                    pygame.draw.rect(
+                        self.screen,
+                        (0, 255, 0),  # Vert pour la position temporaire
+                        (current_x * CELL_SIZE, current_y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
+                        2
+                    )
+                    pygame.display.flip()
+
                     if event.type == pygame.QUIT:
                         pygame.quit()
                         exit()
@@ -99,19 +108,13 @@ class Game:
                             current_x, current_y = new_x, new_y
                             self.flip_display()
                             self.display_movement_radius(selected_unit, moves_left)
-                            pygame.draw.rect(
-                                self.screen,
-                                (0, 255, 0),  # Vert pour la position temporaire
-                                (current_x * CELL_SIZE, current_y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
-                                2
-                            )
-                            pygame.display.flip()
                         else:
                             print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y)}")
+                            new_x,new_y = current_x,current_y #Returner la position cible à la position actuelle pour éviter de pas pouvoir se bouger
 
 
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                        # 确认当前目标不是墙壁
+                        # Confirmant que la position cible n'est pas un mur
                         if self.board.is_traversable(current_x, current_y):
                             self.board.remove_unit(selected_unit)
                             selected_unit.x, selected_unit.y = current_x, current_y
@@ -165,7 +168,7 @@ class Game:
                                             self.display_attack_radius(selected_unit, chosen_skill.range)
                                             pygame.draw.rect(
                                                 self.screen,
-                                                (0, 0, 255),  # Vert pour indiquer la cible sélectionnée
+                                                (0, 0, 255),  # Bleu pour indiquer la cible sélectionnée
                                                 (valid_targets[current_target_idx][0] * CELL_SIZE,
                                                 valid_targets[current_target_idx][1] * CELL_SIZE,
                                                 CELL_SIZE, CELL_SIZE),
@@ -257,7 +260,6 @@ class Game:
 
     def display_attack_radius(self, unit, radius):
         """Affiche les cases accessibles autour de l'unité sélectionnée, mais seulement celles occupées par des ennemis."""
-        from board import GRID_ROWS, GRID_COLS, CELL_SIZE  # Importer les dimensions et la taille des cases
 
         for dx in range(-radius, radius + 1):
             for dy in range(-radius, radius + 1):
@@ -284,8 +286,7 @@ class Game:
 
     def display_movement_radius(self, unit, radius):
         """Affiche les cases accessibles autour de l'unité sélectionnée."""
-        from board import GRID_ROWS, GRID_COLS, CELL_SIZE  # Importer les dimensions et la taille des cases
-
+        
         for dx in range(-radius, radius + 1):
             for dy in range(-radius, radius + 1):
                 target_x = unit.x + dx
