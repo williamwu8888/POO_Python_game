@@ -10,6 +10,14 @@ from bush import generate_bushes, draw_bushes
 
 clock = pygame.time.Clock()
 
+
+class GameOver(Exception):
+
+    def __init__(self, result):
+        super().__init__(result)
+        self.result = result
+
+
 class Game:
     def __init__(self, screen, mode='PVE'):
         self.screen = screen
@@ -78,6 +86,7 @@ class Game:
         pygame.display.flip()
 
     def handle_turn(self):
+
         if self.mode == 'PVE':
             self.handle_player_turn()
             self.handle_enemy_turn()
@@ -88,6 +97,14 @@ class Game:
             elif self.current_team == 'player2':
                 self.handle_team_turn(self.enemy_units)
                 self.current_team = 'player'
+        # Vérifier les conditions de victoire ou de défaite
+        if not self.enemy_units:
+            raise GameOver("victory")
+        elif not self.player_units:
+            raise GameOver("defeat")
+
+
+
 
     def handle_player_turn(self):
         self.handle_team_turn(self.player_units)
