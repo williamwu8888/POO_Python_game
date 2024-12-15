@@ -143,7 +143,7 @@ class Game:
                             if available_skills:
                                 chosen_skill = self.display_skill_menu(selected_unit, available_skills)
 
-                                if (chosen_skill.name != "Heal"):
+                                if (chosen_skill.name != "Heal" and chosen_skill.name != "Fireball"):
                                     # Filtrer les ennemis dans la portée
                                     attackable_targets = self.get_attackable_targets(selected_unit, chosen_skill)
 

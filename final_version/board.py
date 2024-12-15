@@ -3,7 +3,7 @@ from cell import Cell
 
 # Dimensions du plateau
 GRID_ROWS = 12
-GRID_COLS = 20
+GRID_COLS = 10
 
 # Taille des cases
 CELL_SIZE = 60
@@ -32,20 +32,28 @@ class Board:
         """Remove the unit from the board."""
         self.cells[unit.y][unit.x].unit = None
 
-    def is_traversable(self, x, y, x0, y0):
+    def is_traversable(self, x, y, x0, y0, unit=None):
         """
         Vérifie si une cellule est traversable.
         """
         if x < 0 or x >= GRID_COLS or y < 0 or y >= GRID_ROWS:
-            print(f"Cell ({x}, {y}): Out of bounds")
             return False
+
         cell = self.cells[y][x]
+
+        if cell.type == "river":
+            if unit and unit.__class__.__name__ == "KnightUnit":
+                return getattr(cell, "traversable_for_knight", False)
+            return False  
+
         if x != x0 or y != y0:
-            traversable = cell.type != "wall" #and cell.unit is None
+            traversable = cell.type != "wall"
         else:
             traversable = True
-        print(f"Cell ({x}, {y}): type={cell.type}, unit={cell.unit}, traversable={traversable}")
+
         return traversable
+
+
 
     def is_another_unit(self, x, y,selected_unit):
         """
