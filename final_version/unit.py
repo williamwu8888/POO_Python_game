@@ -20,9 +20,16 @@ class BaseUnit:
         self.speed = speed
         self.stunned = False
 
-        # Charger les icônes normales et "sélectionnées"
-        icon_filename = f"{icon_path}_{team}.png"
+        # Ajuster le nom de l'icône en fonction de l'équipe
+        if team == 'player2':  # PVP mode: player2 uses enemy icon
+            icon_filename = f"{icon_path}_enemy.png"
+        else:  # PVE mode: enemy uses enemy icon, player uses player icon
+            icon_filename = f"{icon_path}_{team}.png"
+
         selected_filename = f"{icon_path}_selected.png"
+
+        # Charger les icônes
+
         self.icon = pygame.image.load(f'unit_icons/{icon_filename}')
         self.icon = pygame.transform.scale(self.icon, (CELL_SIZE, CELL_SIZE))
         self.selected_icon = pygame.image.load(f'unit_icons/{selected_filename}')
