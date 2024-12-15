@@ -41,13 +41,11 @@ class Board:
 
         cell = self.cells[y][x]
 
-        # 特殊处理 river 类型
         if cell.type == "river":
             if unit and unit.__class__.__name__ == "KnightUnit":
                 return getattr(cell, "traversable_for_knight", False)
-            return False  # 对其他单位一律阻止
+            return False  
 
-        # 检查 wall 和其他类型
         if x != x0 or y != y0:
             traversable = cell.type != "wall"
         else:
