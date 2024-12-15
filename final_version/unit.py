@@ -258,7 +258,7 @@ class ArcherUnit(BaseUnit):
 class MageUnit(BaseUnit):
     def __init__(self, x, y, team):
         super().__init__(x, y, health=36, attack_power=16, defense=2, team=team, icon_path='mage', speed=10)
-        self.skills = [Skill("Fireball", 20, 3, 0.9, 1),  # Fireball with higher power
+        self.skills = [FireballSkill("Fireball", 20, 3, 0.9),  # Fireball with higher power
                        BuffSkill("Magic Shield", "defense", buff_amount=5, range=3),  # Magic Shield (buffs defense)
                        BuffSkill("Speed Boost", "speed", buff_amount=1, range=3)]  # Speed Boost added
 

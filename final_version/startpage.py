@@ -12,7 +12,7 @@ BUTTON_HOVER_COLOR = (0, 180, 255)
 TEXT_COLOR = (255, 255, 255)
 
 # Charger les images
-BACKGROUND_IMAGE_PATH = "unit_icons/startpage.jpg"  # Chemin vers votre image de fond
+BACKGROUND_IMAGE_PATH = "final_version/unit_icons/startpage.jpg"  # Chemin vers votre image de fond
 
 
 def start_screen():

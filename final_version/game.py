@@ -325,7 +325,7 @@ class Game:
                                     else:
                                         print("No valid enemies to debuff.")
 
-                                elif chosen_skill.name == "Fireball": # Si le skill c'est fireball il augmente l'aire d'attaque
+                                elif (isinstance(chosen_skill, FireballSkill)): # Si le skill c'est fireball il augmente l'aire d'attaque
                                     # Filtrer les ennemis dans la portée
                                     attackable_targets = self.get_attackable_targets(selected_unit, chosen_skill)
 
@@ -355,8 +355,8 @@ class Game:
                                                     elif event.key == pygame.K_UP:
                                                         current_target_idx = (current_target_idx - 1) % len(valid_targets)
 
-                                                    # Sélectionner une cible avec K_1
-                                                    if event.key == pygame.K_1:
+                                                    # Sélectionner une cible avec K_SPACE
+                                                    if event.key == pygame.K_SPACE:
                                                         
                                                         target_x, target_y = valid_targets[current_target_idx]                                                        
                                                         target_unit = self.board.cells[target_y][target_x].unit
@@ -400,13 +400,6 @@ class Game:
                                                 3  # Épaisseur du contour pour le curseur
                                             )
                                             pygame.display.flip()
-
-
-
-
-
-
-
 
                                 elif not isinstance(chosen_skill, (HealSkill, BuffSkill, DebuffSkill)):  # Handle non-heal/buff/debuff skills
                                     # Filtrer les ennemis dans la portée
