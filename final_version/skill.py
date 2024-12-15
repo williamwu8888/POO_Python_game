@@ -15,25 +15,14 @@ class Skill:
 
         if random.random() < self.accuracy:
             damage = self.calculate_damage(attacker, target)
-            print(f"{attacker.team} unit uses {self.name} on {target.team}, dealing {damage} damage.")
+            print(f"{attacker.team.capitalize()} unit ({attacker.__class__.__name__}) uses {self.name} on "
+                  f"{target.team.capitalize()} unit ({target.__class__.__name__}), dealing {damage} damage.")
             target.receive_damage(damage, game)
         else:
-            print(f"{attacker.team} unit missed with {self.name}!")
+            print(f"{attacker.team.capitalize()} unit ({attacker.__class__.__name__}) missed with {self.name}!")
 
     def calculate_damage(self, attacker, target):
         return max(0, self.power + attacker.attack_power - target.defense)
-
-class DamageSkill(Skill):
-    def __init__(self, name, power, range, accuracy, area_of_effect):
-        super().__init__(name, power, range, accuracy, area_of_effect)
-
-    def use(self, attacker, target, game):
-        if random.random() < self.accuracy:
-            damage = self.calculate_damage(attacker, target)
-            print(f"{attacker.team} unit uses {self.name} on {target.team}, dealing {damage} damage.")
-            target.receive_damage(damage, game)
-        else:
-            print(f"{attacker.team} unit missed with {self.name}!")
 
 class ShieldBash(Skill):
     def __init__(self, name, power, range, accuracy):
@@ -42,11 +31,12 @@ class ShieldBash(Skill):
     def use(self, attacker, target, game):
         if random.random() < self.accuracy:
             damage = self.calculate_damage(attacker, target)
-            print(f"{attacker.team} unit uses {self.name} on {target.team}, dealing {damage} damage and stunning!")
+            print(f"{attacker.team.capitalize()} unit ({attacker.__class__.__name__}) uses {self.name} on "
+                  f"{target.team.capitalize()} unit ({target.__class__.__name__}), dealing {damage} damage and stunning!")
             target.receive_damage(damage, game)
-            target.stunned = True  # Applique l'effet de stun
+            target.stunned = True  # Apply the stun effect
         else:
-            print(f"{attacker.team} unit missed with {self.name}!")
+            print(f"{attacker.team.capitalize()} unit ({attacker.__class__.__name__}) missed with {self.name}!")
 
 
 class BuffSkill(Skill):
@@ -56,8 +46,32 @@ class BuffSkill(Skill):
         self.buff_amount = buff_amount
 
     def use(self, caster, target, game):
-        setattr(target, self.stat_to_buff, getattr(target, self.stat_to_buff) + self.buff_amount)
-        print(f"{caster.team} unit buffs {target.team} unit's {self.stat_to_buff} by {self.buff_amount}.")
+        # Apply the buff only if the target is a teammate
+        if target.team == caster.team:
+            # Print with more detailed information about the caster, target, and stat being buffed
+            print(f"{caster.team.capitalize()} unit ({caster.__class__.__name__}) buffs "
+                  f"{target.team.capitalize()} unit ({target.__class__.__name__})'s "
+                  f"{self.stat_to_buff} by {self.buff_amount}.")
+            
+            # Apply the buff
+            setattr(target, self.stat_to_buff, getattr(target, self.stat_to_buff) + self.buff_amount)
+        else:
+            print(f"{caster.team.capitalize()} unit ({caster.__class__.__name__}) cannot buff "
+                  f"{target.team.capitalize()} unit ({target.__class__.__name__}) as they are an enemy.")
+
+
+class DebuffSkill(Skill):
+    def __init__(self, name, stat_to_debuff, debuff_amount, range):
+        super().__init__(name, power=0, range=range, accuracy=1, area_of_effect=1)
+        self.stat_to_debuff = stat_to_debuff
+        self.debuff_amount = debuff_amount
+
+    def use(self, caster, target, game):
+        setattr(target, self.stat_to_debuff, getattr(target, self.stat_to_debuff) + self.debuff_amount)
+        print(f"{caster.team.capitalize()} unit ({caster.__class__.__name__}) debuffs "
+              f"{target.team.capitalize()} unit ({target.__class__.__name__})'s "
+              f"{self.stat_to_debuff} by {self.debuff_amount}.")
+
 
 class FireballSkill(Skill):
     def __init__(self, name, power, range, accuracy):
@@ -66,10 +80,12 @@ class FireballSkill(Skill):
     def use(self, attacker, target, game):
         if random.random() < self.accuracy:
             damage = self.calculate_damage(attacker, target)
-            print(f"{attacker.team} unit casts {self.name} on {target.team}, dealing {damage} damage.")
+            print(f"{attacker.team.capitalize()} unit ({attacker.__class__.__name__}) casts {self.name} on "
+                  f"{target.team.capitalize()} unit ({target.__class__.__name__}), dealing {damage} damage.")
             target.receive_damage(damage, game)
         else:
-            print(f"{attacker.team} unit missed with {self.name}!")
+            print(f"{attacker.team.capitalize()} unit ({attacker.__class__.__name__}) missed with {self.name}!")
+
 
 class ArrowShot(Skill):
     def __init__(self, name, power, range, accuracy):
@@ -78,10 +94,12 @@ class ArrowShot(Skill):
     def use(self, attacker, target, game):
         if random.random() < self.accuracy:
             damage = self.calculate_damage(attacker, target)
-            print(f"{attacker.team} unit shoots {self.name} at {target.team}, dealing {damage} damage.")
+            print(f"{attacker.team.capitalize()} unit ({attacker.__class__.__name__}) shoots {self.name} at "
+                  f"{target.team.capitalize()} unit ({target.__class__.__name__}), dealing {damage} damage.")
             target.receive_damage(damage, game)
         else:
-            print(f"{attacker.team} unit missed with {self.name}!")
+            print(f"{attacker.team.capitalize()} unit ({attacker.__class__.__name__}) missed with {self.name}!")
+
 
 class HealSkill(Skill):
     def __init__(self, name, healing_amount, range, accuracy):
@@ -91,4 +109,5 @@ class HealSkill(Skill):
         if random.random() < self.accuracy:
             healing = self.power
             target.health = min(target.max_health, target.health + healing)
-            print(f"{healer.team} unit heals {target.team} unit for {healing} HP.")
+            print(f"{healer.team.capitalize()} unit ({healer.__class__.__name__}) heals "
+                  f"{target.team.capitalize()} unit ({target.__class__.__name__}) for {healing} HP.")

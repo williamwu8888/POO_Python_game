@@ -1,6 +1,6 @@
 import pygame
 from board import GRID_ROWS, GRID_COLS, CELL_SIZE
-from skill import Skill, HealSkill, BuffSkill
+from skill import Skill, HealSkill, BuffSkill, DebuffSkill, ShieldBash
 
 import os
 print("Répertoire courant :", os.getcwd())
@@ -104,11 +104,11 @@ class BaseUnit:
 
 class WarriorUnit(BaseUnit):
     def __init__(self, x, y, team):
-        super().__init__(x, y, health=60, attack_power=6, defense=10, team=team, icon_path='guerrier', speed=2)
+        super().__init__(x, y, health=60, attack_power=6, defense=10, team=team, icon_path='guerrier', speed=10)
 
 class KnightUnit(BaseUnit):
     def __init__(self, x, y, team):
-        super().__init__(x, y, health=45, attack_power=8, defense=6, team=team, icon_path='chevalier', speed=4)
+        super().__init__(x, y, health=45, attack_power=8, defense=6, team=team, icon_path='chevalier', speed=10)
         self.skills = [Skill("Shield Bash", 12, 1, 0.85, 1)]  # Attaque à courte portée avec effet de stun (dépend de la compétence)
     
     def move(self, dx, dy, board):
@@ -129,24 +129,21 @@ class KnightUnit(BaseUnit):
 
 class ArcherUnit(BaseUnit):
     def __init__(self, x, y, team):
-        super().__init__(x, y, health=40, attack_power=16, defense=2, team=team, icon_path='archer', speed=3)
+        super().__init__(x, y, health=40, attack_power=16, defense=2, team=team, icon_path='archer', speed=10)
         self.skills = [Skill("Arrow Shot", 10, 3, 0.9, 1)]
 
 class MageUnit(BaseUnit):
     def __init__(self, x, y, team):
-        super().__init__(x, y, health=36, attack_power=16, defense=2, team=team, icon_path='mage', speed=3)
+        super().__init__(x, y, health=36, attack_power=16, defense=2, team=team, icon_path='mage', speed=10)
         self.skills = [Skill("Fireball", 15, 2, 0.8, 1)]
 
 class HealerUnit(BaseUnit):
     def __init__(self, x, y, team):
-        super().__init__(x, y, health=42, attack_power=6, defense=6, team=team, icon_path='soigneur', speed=3)
+        super().__init__(x, y, health=42, attack_power=6, defense=6, team=team, icon_path='soigneur', speed=10)
         self.skills = [HealSkill("Heal", 15, 1, 0.95)]
 
 class SupportUnit(BaseUnit):
     def __init__(self, x, y, team):
-        super().__init__(x, y, health=38, attack_power=6, defense=6, team=team, icon_path='support', speed=3)
-        self.skills = [
-            BuffSkill("Power Boost", "attack_power", 3, 3),
-        ]
-
-
+        super().__init__(x, y, health=38, attack_power=6, defense=6, team=team, icon_path='support', speed=10)
+        self.skills = [BuffSkill("Power Boost", "attack_power", 3, 3),
+                       DebuffSkill("Power decrease", "attack_power", 3, 3)]
