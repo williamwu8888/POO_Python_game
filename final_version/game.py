@@ -5,6 +5,7 @@ from unit import *
 from skill import *
 from board import GRID_ROWS, GRID_COLS, CELL_SIZE
 from wall import generate_walls, draw_walls
+from river import generate_rivers, draw_rivers
 
 class Game:
     def __init__(self, screen, mode='PVE'):
@@ -31,10 +32,18 @@ class Game:
             SupportUnit(GRID_COLS - 1, (GRID_ROWS-6)//2 +5, 'enemy' if mode == 'PVE' else 'player2')
         ]
 
+
         self.walls = generate_walls(
             self.board,
             [(unit.x, unit.y) for unit in self.player_units],
             [(unit.x, unit.y) for unit in self.enemy_units])
+
+        self.rivers = generate_rivers(
+            self.board,
+            [(unit.x, unit.y) for unit in self.player_units],
+            [(unit.x, unit.y) for unit in self.enemy_units]
+        )
+
 
         # Ajouter les unités au plateau
         for unit in self.player_units + self.enemy_units:
@@ -45,6 +54,7 @@ class Game:
     def flip_display(self):
         self.screen.fill((0, 0, 0))
         self.board.display(self.screen)
+        draw_rivers(self.screen, self.board, CELL_SIZE)
         draw_walls(self.screen, self.board, CELL_SIZE)
         pygame.display.flip()
 
@@ -106,7 +116,7 @@ class Game:
                         new_y = current_y + dy
                         distance = abs(new_x - selected_unit.x) + abs(new_y - selected_unit.y)
 
-                        if self.board.is_traversable(new_x, new_y,current_x, current_y) and distance <= moves_left:
+                        if self.board.is_traversable(new_x, new_y,current_x, current_y, selected_unit) and distance <= moves_left:
                             print(f"Moving to ({new_x}, {new_y})")
                             current_x, current_y = new_x, new_y
                             self.flip_display()
@@ -119,7 +129,7 @@ class Game:
                             )
                             pygame.display.flip()
                         else: 
-                            print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y,current_x, current_y)}")
+                            print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y,current_x, current_y, selected_unit)}")
                             new_x,new_y = current_x,current_y # Retourner la position cible à la position actuelle pour éviter de pas pouvoir se bouger
 
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -385,7 +395,8 @@ class Game:
                 target_x = unit.x + dx
                 target_y = unit.y + dy
                 distance = abs(dx) + abs(dy)
-                if self.board.is_traversable(target_x, target_y) and distance <= radius:
+                if self.board.is_traversable(target_x, target_y, unit.x, unit.y, unit) and distance <= radius:
+
                     pygame.draw.rect(
                         self.screen,
                         (100, 100, 255),  # Bleu clair pour afficher la portée

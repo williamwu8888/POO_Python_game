@@ -112,20 +112,19 @@ class KnightUnit(BaseUnit):
         self.skills = [Skill("Shield Bash", 12, 1, 0.85, 1)]  # Attaque à courte portée avec effet de stun (dépend de la compétence)
     
     def move(self, dx, dy, board):
-        if self.stunned:
-            return 
         new_x, new_y = self.x + dx, self.y + dy
         if not (0 <= new_x < GRID_COLS and 0 <= new_y < GRID_ROWS):
-            return 
+            return
 
-        target_cell = board.cells[new_y][new_x]
-        if target_cell.traversable_for(self):  # Utilise la méthode traversable_for
+        if board.is_traversable(new_x, new_y, self.x, self.y):
             distance = abs(dx) + abs(dy)
             if distance <= self.speed:
                 board.remove_unit(self)
                 self.x, self.y = new_x, new_y
                 board.add_unit(self)
                 print(f"Knight moved to ({self.x}, {self.y}).")
+
+
 
 
 class ArcherUnit(BaseUnit):

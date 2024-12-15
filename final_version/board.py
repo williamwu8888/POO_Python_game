@@ -32,20 +32,30 @@ class Board:
         """Remove the unit from the board."""
         self.cells[unit.y][unit.x].unit = None
 
-    def is_traversable(self, x, y, x0, y0):
+    def is_traversable(self, x, y, x0, y0, unit=None):
         """
         Vérifie si une cellule est traversable.
         """
         if x < 0 or x >= GRID_COLS or y < 0 or y >= GRID_ROWS:
-            print(f"Cell ({x}, {y}): Out of bounds")
             return False
+
         cell = self.cells[y][x]
+
+        # 特殊处理 river 类型
+        if cell.type == "river":
+            if unit and unit.__class__.__name__ == "KnightUnit":
+                return getattr(cell, "traversable_for_knight", False)
+            return False  # 对其他单位一律阻止
+
+        # 检查 wall 和其他类型
         if x != x0 or y != y0:
-            traversable = cell.type != "wall" #and cell.unit is None
+            traversable = cell.type != "wall"
         else:
             traversable = True
-        print(f"Cell ({x}, {y}): type={cell.type}, unit={cell.unit}, traversable={traversable}")
+
         return traversable
+
+
 
     def is_another_unit(self, x, y,selected_unit):
         """
