@@ -129,7 +129,7 @@ class Game:
                             if available_skills:
                                 chosen_skill = self.display_skill_menu(selected_unit, available_skills)
 
-                                if (chosen_skill.name != "Heal" and chosen_skill.name != 'place river'):
+                                if (chosen_skill.name != "Heal"):
                                     # Filtrer les ennemis dans la portée
                                     attackable_targets = self.get_attackable_targets(selected_unit, chosen_skill)
 
@@ -233,10 +233,6 @@ class Game:
                                             )
                                             pygame.display.flip()
 
-                                elif chosen_skill.name == "Place River":
-                                        attackable_targets = self.get_attackable_targets(selected_unit, chosen_skill)
-                                        if attackable_targets:
-                                            self.handle_attack(selected_unit, chosen_skill, attackable_targets)
                                 else:
                                     print("No skills available.")
                             has_acted = True
@@ -422,7 +418,7 @@ class Game:
 
 
     def handle_attack(self, unit, skill, targets):
-        if isinstance(skill, PlaceRiverSkill):
+        if isinstance(skill):
             target_chosen = False
             current_target_idx = 0
 
@@ -459,8 +455,7 @@ class Game:
                             current_target_idx = (current_target_idx - 1) % len(targets)  # Passer à la cible précédente
                         elif event.key == pygame.K_1:  # Confirmer la cible
                             target_x, target_y = targets[current_target_idx]
-                            self.board.cells[target_y][target_x].type = "river"
-                            self.board.cells[target_y][target_x].traversable = False  # Rendre la rivière infranchissable
+                            # Ici, aucune modification du type "river" ou des propriétés de cellule
                             target_chosen = True
                         elif event.key == pygame.K_ESCAPE:  # Annuler
                             return
