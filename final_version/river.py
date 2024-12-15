@@ -79,14 +79,20 @@ def ensure_connectivity(board):
 
 def draw_rivers(screen, board, cell_size):
     """
-    Dessine les rivières sur le plateau.
+    Dessine les rivières sur le plateau avec des couleurs semi-transparentes.
     """
+    # Créer une surface semi-transparente
+    river_surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+    
     for row in range(GRID_ROWS):
         for col in range(GRID_COLS):
             cell = board.cells[row][col]
             if cell.type == 'river':
+                # Dessiner sur la surface semi-transparente
                 pygame.draw.rect(
-                    screen,
-                    (0, 0, 255),  # Couleur bleue pour les rivières
+                    river_surface,
+                    (50, 60, 255, 120),  # Bleu semi-transparent (R, G, B, Alpha)
                     (col * cell_size, row * cell_size, cell_size, cell_size)
                 )
+    # Blit la surface semi-transparente sur l'écran principal
+    screen.blit(river_surface, (0, 0))
