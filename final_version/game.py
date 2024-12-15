@@ -237,6 +237,83 @@ class Game:
                                             )
                                             pygame.display.flip()
 
+                                elif chosen_skill.name == "Fireball":
+                                    # Filtrer les ennemis dans la portée
+                                    attackable_targets = self.get_attackable_targets(selected_unit, chosen_skill)
+
+                                    if attackable_targets :
+                                        # Affiche la portée d'attaque
+                                        self.display_attack_radius(selected_unit, chosen_skill.range)
+
+                                        # Attente du joueur pour choisir la cible (au clavier)
+                                        target_chosen = False
+                                        current_target_idx = 0  # Index du curseur de la cible sélectionnée
+
+                                        # Filtrer les ennemis à portée
+                                        valid_targets = [target for target in attackable_targets
+                                                        if abs(target[0] - selected_unit.x) + abs(target[1] - selected_unit.y) <= chosen_skill.range]
+
+                                        # Afficher les allies à portée
+                                        while not target_chosen:
+                                            for event in pygame.event.get():
+                                                if event.type == pygame.QUIT:
+                                                    pygame.quit()
+                                                    exit()
+
+                                                if event.type == pygame.KEYDOWN:
+                                                    # Déplacer le curseur sur les cibles à portée
+                                                    if event.key == pygame.K_DOWN:
+                                                        current_target_idx = (current_target_idx + 1) % len(valid_targets)
+                                                    elif event.key == pygame.K_UP:
+                                                        current_target_idx = (current_target_idx - 1) % len(valid_targets)
+
+                                                    # Sélectionner une cible avec K_1
+                                                    if event.key == pygame.K_1:
+                                                        
+                                                        target_x, target_y = valid_targets[current_target_idx]                                                        
+                                                        target_unit = self.board.cells[target_y][target_x].unit
+                                                        if target_unit:
+                                                            print(f"Using {chosen_skill.name} on {target_unit.team} unit.")
+                                                            chosen_skill.use(selected_unit, target_unit, self)
+                                                            target_chosen = True
+                                                            self.flip_display()
+
+                                                        if ((target_x+1 >= 0) and ((target_x+1) < GRID_COLS) and (target_y >= 0) and (target_y < GRID_ROWS)):
+                                                            #print(target_x+1)
+                                                            target1 = self.board.cells[target_y][target_x+1].unit
+                                                            if target1:
+                                                                print(f"Using {chosen_skill.name} on {target_unit.team} unit.")
+                                                                chosen_skill.use(selected_unit, target1, self)
+                                                                self.flip_display()
+
+                                                        if (target_x+1 >= 0 and target_x+1 < GRID_COLS and target_y+1 >= 0 and target_y+1 < GRID_ROWS):
+                                                            target2 = self.board.cells[target_y+1][target_x+1].unit
+                                                            if target2:
+                                                                print(f"Using {chosen_skill.name} on {target_unit.team} unit.")
+                                                                chosen_skill.use(selected_unit, target2, self)
+                                                                self.flip_display()
+
+                                                        if (target_x >= 0 and target_x < GRID_COLS and target_y+1 >= 0 and target_y+1 < GRID_ROWS):
+                                                            target3 = self.board.cells[target_y+1][target_x].unit
+                                                            if target3:
+                                                                print(f"Using {chosen_skill.name} on {target_unit.team} unit.")
+                                                                chosen_skill.use(selected_unit, target3, self)
+                                                                self.flip_display()
+                                                        
+
+                                            # Redessiner la portée avec la cible sélectionnée
+                                            self.display_attack_radius(selected_unit, chosen_skill.range)
+                                            pygame.draw.rect(
+                                                self.screen,
+                                                (0, 0, 255),  # Bleu pour indiquer la cible sélectionnée
+                                                (valid_targets[current_target_idx][0] * CELL_SIZE,
+                                                valid_targets[current_target_idx][1] * CELL_SIZE,
+                                                CELL_SIZE*2, CELL_SIZE*2),
+                                                3  # Épaisseur du contour pour le curseur
+                                            )
+                                            pygame.display.flip()
+
+
                                 else:
                                     print("No skills available.")
                             has_acted = True
