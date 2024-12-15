@@ -106,7 +106,8 @@ class Game:
                         new_y = current_y + dy
                         distance = abs(new_x - selected_unit.x) + abs(new_y - selected_unit.y)
 
-                        if self.board.is_traversable(new_x, new_y) and distance <= moves_left:
+                        if self.board.is_traversable(new_x, new_y,current_x, current_y) and distance <= moves_left:
+                            print(f"Moving to ({new_x}, {new_y})")
                             current_x, current_y = new_x, new_y
                             self.flip_display()
                             self.display_movement_radius(selected_unit, moves_left)
@@ -117,9 +118,12 @@ class Game:
                                 2
                             )
                             pygame.display.flip()
+                        else: 
+                            print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y,current_x, current_y)}")
+                            new_x,new_y = current_x,current_y # Retourner la position cible à la position actuelle pour éviter de pas pouvoir se bouger
 
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                        if self.board.is_traversable(current_x, current_y):
+                        if self.board.is_another_unit(current_x, current_y,selected_unit):
                             self.board.remove_unit(selected_unit)
                             selected_unit.x, selected_unit.y = current_x, current_y
                             self.board.add_unit(selected_unit)
