@@ -7,6 +7,8 @@ from board import GRID_ROWS, GRID_COLS, CELL_SIZE
 from wall import generate_walls, draw_walls
 from river import generate_rivers, draw_rivers
 
+clock = pygame.time.Clock()
+
 class Game:
     def __init__(self, screen, mode='PVE'):
         self.screen = screen
@@ -188,13 +190,14 @@ class Game:
                                                 3  # Outline thickness for the cursor
                                             )
                                             pygame.display.flip()
+                                            clock.tick(30)
 
                                 elif isinstance(chosen_skill, BuffSkill):  # Check for BuffSkill
                                     # Get teammates within the buff's range
                                     buffable_targets = self.get_buffable_targets(selected_unit, chosen_skill)
                                     
                                     if buffable_targets:
-                                        # Display the buff range
+                                        # Clear the previously selected unit's highlight by redrawing it in its normal state
                                         self.display_buff_radius(selected_unit, chosen_skill.range)
 
                                         # Wait for player to select a target
@@ -226,10 +229,11 @@ class Game:
                                                             print(f"Buffing {target_unit.team} unit.")
                                                             chosen_skill.use(selected_unit, target_unit, self)
                                                             target_chosen = True
-                                                            self.flip_display()
 
                                             # Redraw the buff range with the selected target
                                             self.display_buff_radius(selected_unit, chosen_skill.range)
+
+                                            # Redraw the selected target with a blue outline
                                             pygame.draw.rect(
                                                 self.screen,
                                                 (0, 0, 255),  # Blue to indicate the selected target
@@ -238,7 +242,11 @@ class Game:
                                                 CELL_SIZE, CELL_SIZE),
                                                 3  # Outline thickness for the cursor
                                             )
+
+                                            # Refresh the display once at the end of the loop iteration
                                             pygame.display.flip()
+                                            clock.tick(30)
+
                                     else:
                                         print("No valid teammates to buff.")
 
@@ -294,6 +302,8 @@ class Game:
                                                 3  # Outline thickness for the cursor
                                             )
                                             pygame.display.flip()
+                                            clock.tick(30)
+                                            
                                     else:
                                         print("No valid enemies to debuff.")
 
@@ -348,6 +358,8 @@ class Game:
                                                 3  # Épaisseur du contour pour le curseur
                                             )
                                             pygame.display.flip()
+                                            clock.tick(30)
+
                                 else:
                                     print("No skills available.")
                             has_acted = True
