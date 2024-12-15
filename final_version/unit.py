@@ -30,9 +30,9 @@ class BaseUnit:
 
         # Charger les icônes
 
-        self.icon = pygame.image.load(f'unit_icons/{icon_filename}')
+        self.icon = pygame.image.load(f'final_version/unit_icons/{icon_filename}')
         self.icon = pygame.transform.scale(self.icon, (CELL_SIZE, CELL_SIZE))
-        self.selected_icon = pygame.image.load(f'unit_icons/{selected_filename}')
+        self.selected_icon = pygame.image.load(f'final_version/unit_icons/{selected_filename}')
         self.selected_icon = pygame.transform.scale(self.selected_icon, (CELL_SIZE, CELL_SIZE))
 
     def move(self, dx, dy, board):
