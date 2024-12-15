@@ -76,7 +76,6 @@ def ensure_connectivity(board):
                 board.cells[row][col].type = "empty"
 
 def draw_walls(screen, board, cell_size):
-
     for row in range(GRID_ROWS):
         for col in range(GRID_COLS):
             cell = board.cells[row][col]
@@ -84,12 +83,6 @@ def draw_walls(screen, board, cell_size):
                 pygame.draw.rect(
                     screen,
                     (50, 50, 50),  
-                    (col * cell_size, row * cell_size, cell_size, cell_size)
-                )
-            elif cell.type == "river":  
-                pygame.draw.rect(
-                    screen,
-                    (0, 0, 255),  
                     (col * cell_size, row * cell_size, cell_size, cell_size)
                 )
 

@@ -166,45 +166,21 @@ class Game:
     def get_available_skills(self, unit):
         available_skills = []
         for skill in unit.skills:
-            if isinstance(skill, PlaceRiverSkill):  # Vérifiez si c’est PlaceRiverSkill
-                adjacent_cells = [
-                    (unit.x + dx, unit.y + dy)
-                    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]
-                    if 0 <= unit.x + dx < GRID_COLS and 0 <= unit.y + dy < GRID_ROWS
-                ]
-                for cell in adjacent_cells:
-                    x, y = cell
-                    if self.board.cells[y][x].unit is None and self.board.cells[y][x].type != "wall":  # seulement les case d’espace sont détectés
-                        available_skills.append(skill)
-                        break
-            else:  # # autres skill garder la logique originale
-                has_target = any(
-                    abs(unit.x - enemy.x) + abs(unit.y - enemy.y) <= skill.range
-                    for enemy in (self.enemy_units if unit.team == 'player' else self.player_units)
-                )
-                if has_target:
-                    available_skills.append(skill)
+            has_target = any(
+                abs(unit.x - enemy.x) + abs(unit.y - enemy.y) <= skill.range
+                for enemy in (self.enemy_units if unit.team == 'player' else self.player_units)
+            )
+            if has_target:
+                available_skills.append(skill)
         return available_skills
 
 
-
     def get_attackable_targets(self, unit, skill):
-        if isinstance(skill, PlaceRiverSkill):  # Vérifiez si c’est PlaceRiverSkill
-            adjacent_cells = [
-                (unit.x + dx, unit.y + dy)
-                for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]
-                if 0 <= unit.x + dx < GRID_COLS and 0 <= unit.y + dy < GRID_ROWS
-            ]
-            return [
-                cell for cell in adjacent_cells
-                if self.board.cells[cell[1]][cell[0]].unit is None and self.board.cells[cell[1]][cell[0]].type != "wall"
-            ]
-        else:  # Logique originale, gestion d’autres skill
-            return [
-                (enemy.x, enemy.y)
-                for enemy in (self.enemy_units if unit.team == 'player' else self.player_units)
-                if abs(unit.x - enemy.x) + abs(unit.y - enemy.y) <= skill.range
-            ]
+        return [
+            (enemy.x, enemy.y)
+            for enemy in (self.enemy_units if unit.team == 'player' else self.player_units)
+            if abs(unit.x - enemy.x) + abs(unit.y - enemy.y) <= skill.range
+        ]
 
 
     def display_attack_radius(self, unit, radius):
