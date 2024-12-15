@@ -173,8 +173,8 @@ class Game:
                                                     elif event.key == pygame.K_UP:
                                                         current_target_idx = (current_target_idx - 1) % len(valid_targets)
 
-                                                    # Sélectionner une cible avec K_1
-                                                    if event.key == pygame.K_1:
+                                                    # Sélectionner une cible avec K_SPACE
+                                                    if event.key == pygame.K_SPACE:
                                                         target_x, target_y = valid_targets[current_target_idx]
                                                         target_unit = self.board.cells[target_y][target_x].unit
                                                         if target_unit:
@@ -225,8 +225,8 @@ class Game:
                                                     elif event.key == pygame.K_UP:
                                                         current_target_idx = (current_target_idx - 1) % len(valid_targets)
 
-                                                    # Sélectionner une cible avec K_1
-                                                    if event.key == pygame.K_1:
+                                                    # Sélectionner une cible avec K_SPACE
+                                                    if event.key == pygame.K_SPACE:
                                                         target_x, target_y = valid_targets[current_target_idx]
                                                         target_unit = self.board.cells[target_y][target_x].unit
                                                         if target_unit:
@@ -502,7 +502,7 @@ class Game:
                             current_target_idx = (current_target_idx + 1) % len(targets)  # Passer à la cible suivante
                         elif event.key == pygame.K_UP:
                             current_target_idx = (current_target_idx - 1) % len(targets)  # Passer à la cible précédente
-                        elif event.key == pygame.K_1:  # Confirmer la cible
+                        elif event.key == pygame.K_SPACE:  # Confirmer la cible
                             target_x, target_y = targets[current_target_idx]
                             # Ici, aucune modification du type "river" ou des propriétés de cellule
                             target_chosen = True
