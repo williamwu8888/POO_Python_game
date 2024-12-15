@@ -5,6 +5,7 @@ from unit import *
 from skill import *
 from board import GRID_ROWS, GRID_COLS, CELL_SIZE
 from wall import generate_walls, draw_walls
+from river import generate_rivers, draw_rivers
 
 class Game:
     def __init__(self, screen, mode='PVE'):
@@ -31,10 +32,18 @@ class Game:
             SupportUnit(GRID_COLS - 1, (GRID_ROWS-6)//2 +5, 'enemy' if mode == 'PVE' else 'player2')
         ]
 
+
         self.walls = generate_walls(
             self.board,
             [(unit.x, unit.y) for unit in self.player_units],
             [(unit.x, unit.y) for unit in self.enemy_units])
+
+        self.rivers = generate_rivers(
+            self.board,
+            [(unit.x, unit.y) for unit in self.player_units],
+            [(unit.x, unit.y) for unit in self.enemy_units]
+        )
+
 
         # Ajouter les unités au plateau
         for unit in self.player_units + self.enemy_units:
@@ -45,6 +54,7 @@ class Game:
     def flip_display(self):
         self.screen.fill((0, 0, 0))
         self.board.display(self.screen)
+        draw_rivers(self.screen, self.board, CELL_SIZE)
         draw_walls(self.screen, self.board, CELL_SIZE)
         pygame.display.flip()
 
@@ -106,7 +116,7 @@ class Game:
                         new_y = current_y + dy
                         distance = abs(new_x - selected_unit.x) + abs(new_y - selected_unit.y)
 
-                        if self.board.is_traversable(new_x, new_y,current_x, current_y) and distance <= moves_left:
+                        if self.board.is_traversable(new_x, new_y,current_x, current_y, selected_unit) and distance <= moves_left:
                             print(f"Moving to ({new_x}, {new_y})")
                             current_x, current_y = new_x, new_y
                             self.flip_display()
@@ -119,7 +129,7 @@ class Game:
                             )
                             pygame.display.flip()
                         else: 
-                            print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y,current_x, current_y)}")
+                            print(f"Cannot move to ({new_x}, {new_y}): traversable={self.board.is_traversable(new_x, new_y,current_x, current_y, selected_unit)}")
                             new_x,new_y = current_x,current_y # Retourner la position cible à la position actuelle pour éviter de pas pouvoir se bouger
 
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -462,7 +472,8 @@ class Game:
                 target_x = unit.x + dx
                 target_y = unit.y + dy
                 distance = abs(dx) + abs(dy)
-                if self.board.is_traversable(target_x, target_y) and distance <= radius:
+                if self.board.is_traversable(target_x, target_y, unit.x, unit.y, unit) and distance <= radius:
+
                     pygame.draw.rect(
                         self.screen,
                         (100, 100, 255),  # Bleu clair pour afficher la portée
@@ -472,30 +483,64 @@ class Game:
 
 
     def display_skill_menu(self, unit, available_skills):
-        font = pygame.font.Font(None, 36)
-        skill_buttons = []
+        """
+        Affiche le menu des compétences disponibles pour une unité sélectionnée,
+        avec des boutons deux fois plus grands et des textes centrés.
+        """
+        font = pygame.font.Font(None, 36)  # Police pour les textes
+        skill_buttons = []  # Liste des boutons et compétences
 
+        # Initialisation des boutons et augmentation de leur taille
         for i, skill in enumerate(available_skills):
             button_rect = pygame.Rect(10, 500 + i * 50, 300, 40)
+            button_rect.inflate_ip(button_rect.width, button_rect.height)  # Doubler la taille du bouton
             skill_buttons.append((button_rect, skill))
-            pygame.draw.rect(self.screen, (200, 200, 200), button_rect)
-            text_surface = font.render(f"{skill.name}: Range {skill.range}", True, (0, 0, 0))
-            self.screen.blit(text_surface, (button_rect.x + 10, button_rect.y + 5))
 
-        pygame.display.flip()
+        button_areas = [button_rect.inflate(4, 4) for button_rect, _ in skill_buttons]  # Zones à mettre à jour
 
         while True:
+            mouse_pos = pygame.mouse.get_pos()  # Position actuelle de la souris
+
+            # Parcourir les boutons pour gérer les interactions et les dessins
+            for button_rect, skill in skill_buttons:
+                # Couleur selon l'état du bouton (surligné ou non)
+                if button_rect.collidepoint(mouse_pos):
+                    button_color = (250, 250, 205, 10)  # Couleur jaune clair semi-transparente
+                else:
+                    button_color = (135, 206, 250, 10)  # Couleur grise semi-transparente
+
+                # Créer une surface semi-transparente pour le bouton
+                button_surface = pygame.Surface((button_rect.width, button_rect.height), pygame.SRCALPHA)
+                button_surface.fill(button_color)
+
+                # Effacer et redessiner le bouton
+                self.screen.blit(button_surface, (button_rect.x, button_rect.y))
+
+                # Centrer le texte sur le bouton
+                text_surface = font.render(f"{skill.name}: Range {skill.range}", True, (0, 0, 0))
+                text_x = button_rect.x + (button_rect.width - text_surface.get_width()) // 2
+                text_y = button_rect.y + (button_rect.height - text_surface.get_height()) // 2
+                self.screen.blit(text_surface, (text_x, text_y))
+
+            # Mettre à jour uniquement les zones des boutons
+            pygame.display.update(button_areas)
+
+            # Gestion des événements utilisateur
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_pos = event.pos
-                    for button_rect, skill in skill_buttons:
-                        if button_rect.collidepoint(mouse_pos):
-                            return skill
+                    if event.button == 1:  # Clic gauche
+                        for button_rect, skill in skill_buttons:
+                            if button_rect.collidepoint(mouse_pos):
+                                return skill  # Retourner la compétence sélectionnée
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    return None
+                    return None  # Quitter le menu si "Échap" est pressé
+
+
+
+
 
 
     def handle_attack(self, unit, skill, targets):
