@@ -88,8 +88,3 @@ def win_screen(result, mode):
                     return "restart"  # Redémarre le jeu
 
         pygame.display.flip()
-
-if __name__ == "__main__":
-    # Exemple d'appel pour tester le fonctionnement
-    result = win_screen("Defeat", "PVP")
-    print(f"Action sélectionnée : {result}")
