@@ -136,7 +136,7 @@ class ArcherUnit(BaseUnit):
 class MageUnit(BaseUnit):
     def __init__(self, x, y, team):
         super().__init__(x, y, health=36, attack_power=16, defense=2, team=team, icon_path='mage', speed=3)
-        self.skills = [Skill("Fireball", 15, 2, 0.8, 1)]
+        self.skills = [Skill("Fireball", 15, 2, 1, 1)]
 
 class HealerUnit(BaseUnit):
     def __init__(self, x, y, team):

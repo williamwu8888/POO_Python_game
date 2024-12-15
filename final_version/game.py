@@ -143,7 +143,7 @@ class Game:
                             if available_skills:
                                 chosen_skill = self.display_skill_menu(selected_unit, available_skills)
 
-                                if (chosen_skill.name != "Heal" and chosen_skill.name != "Fireball"):
+                                if (chosen_skill.name != "Heal" and chosen_skill.name != "Fireball"): # Selection du skill
                                     # Filtrer les ennemis dans la portée
                                     attackable_targets = self.get_attackable_targets(selected_unit, chosen_skill)
 
@@ -247,7 +247,7 @@ class Game:
                                             )
                                             pygame.display.flip()
 
-                                elif chosen_skill.name == "Fireball":
+                                elif chosen_skill.name == "Fireball": #Si le skill c'est fireball il augmente l'aire d'attaque
                                     # Filtrer les ennemis dans la portée
                                     attackable_targets = self.get_attackable_targets(selected_unit, chosen_skill)
 
