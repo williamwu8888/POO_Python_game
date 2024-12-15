@@ -549,65 +549,65 @@ class Game:
 
 
     def display_skill_menu(self, unit, available_skills):
-        """
-        Affiche le menu des compétences disponibles pour une unité sélectionnée,
-        avec des boutons deux fois plus grands et des textes centrés.
-        """
-        font = pygame.font.Font(None, 36)  # Police pour les textes
-        skill_buttons = []  # Liste des boutons et compétences
+            """
+            Affiche le menu des compétences disponibles pour une unité sélectionnée,
+            avec des boutons de taille définie et des textes centrés.
+            """
+            font = pygame.font.Font(None, 36)
+            skill_buttons = []
 
-        # Initialisation des boutons et augmentation de leur taille
-        for i, skill in enumerate(available_skills):
-            button_rect = pygame.Rect(10, 500 + i * 50, 300, 40)
-            button_rect.inflate_ip(button_rect.width, button_rect.height)  # Doubler la taille du bouton
-            skill_buttons.append((button_rect, skill))
+            # Dimensions fixes des boutons
+            button_width = 300  # Largeur du bouton
+            button_height = 60  # Hauteur du bouton
+            vertical_spacing = 10  # Espacement vertical entre les boutons
 
-        button_areas = [button_rect.inflate(4, 4) for button_rect, _ in skill_buttons]  # Zones à mettre à jour
+            # Initialisation des boutons et calcul de leur position
+            for i, skill in enumerate(available_skills):
+                button_x = 10 
+                button_y = 500 + i * (button_height + vertical_spacing)
+                button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+                skill_buttons.append((button_rect, skill))
 
-        while True:
-            mouse_pos = pygame.mouse.get_pos()  # Position actuelle de la souris
+            button_areas = [button_rect for button_rect, _ in skill_buttons] 
 
-            # Parcourir les boutons pour gérer les interactions et les dessins
-            for button_rect, skill in skill_buttons:
-                # Couleur selon l'état du bouton (surligné ou non)
-                if button_rect.collidepoint(mouse_pos):
-                    button_color = (250, 250, 205, 10)  # Couleur jaune clair semi-transparente
-                else:
-                    button_color = (135, 206, 250, 10)  # Couleur grise semi-transparente
+            while True:
+                mouse_pos = pygame.mouse.get_pos()
 
-                # Créer une surface semi-transparente pour le bouton
-                button_surface = pygame.Surface((button_rect.width, button_rect.height), pygame.SRCALPHA)
-                button_surface.fill(button_color)
+                for button_rect, skill in skill_buttons:
 
-                # Effacer et redessiner le bouton
-                self.screen.blit(button_surface, (button_rect.x, button_rect.y))
+                    if button_rect.collidepoint(mouse_pos):
+                        button_color = (250, 250, 205, 10)
+                    else:
+                        button_color = (135, 206, 250, 10)
 
-                # Centrer le texte sur le bouton
-                text_surface = font.render(f"{skill.name}: Range {skill.range}", True, (0, 0, 0))
-                text_x = button_rect.x + (button_rect.width - text_surface.get_width()) // 2
-                text_y = button_rect.y + (button_rect.height - text_surface.get_height()) // 2
-                self.screen.blit(text_surface, (text_x, text_y))
+                    # Créer une surface semi-transparente pour le bouton
+                    button_surface = pygame.Surface((button_rect.width, button_rect.height), pygame.SRCALPHA)
+                    button_surface.fill(button_color)
 
-            # Mettre à jour uniquement les zones des boutons
-            pygame.display.update(button_areas)
+                    # Effacer et redessiner le bouton
+                    self.screen.blit(button_surface, (button_rect.x, button_rect.y))
 
-            # Gestion des événements utilisateur
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:  # Clic gauche
-                        for button_rect, skill in skill_buttons:
-                            if button_rect.collidepoint(mouse_pos):
-                                return skill  # Retourner la compétence sélectionnée
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    return None  # Quitter le menu si "Échap" est pressé
+                    # Centrer le texte sur le bouton
+                    text_surface = font.render(f"{skill.name}: Range {skill.range}", True, (0, 0, 0))
+                    text_x = button_rect.x + (button_rect.width - text_surface.get_width()) // 2
+                    text_y = button_rect.y + (button_rect.height - text_surface.get_height()) // 2
+                    self.screen.blit(text_surface, (text_x, text_y))
 
+                # Mettre à jour uniquement les zones des boutons
+                pygame.display.update(button_areas)
 
-
-
-
+                # Gestion des événements utilisateur
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button == 1:  # Clic gauche
+                            for button_rect, skill in skill_buttons:
+                                if button_rect.collidepoint(mouse_pos):
+                                    return skill  # Retourner la compétence sélectionnée
+                    elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        return None  # Quitter le menu si "Échap" est pressé
 
     def handle_attack(self, unit, skill, targets):
         if isinstance(skill):
