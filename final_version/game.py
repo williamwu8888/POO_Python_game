@@ -8,6 +8,14 @@ from wall import generate_walls, draw_walls
 from river import generate_rivers, draw_rivers
 from bush import generate_bushes, draw_bushes
 
+
+class GameOver(Exception):
+
+    def __init__(self, result):
+        super().__init__(result)
+        self.result = result
+
+
 class Game:
     def __init__(self, screen, mode='PVE'):
         self.screen = screen
@@ -68,6 +76,7 @@ class Game:
         pygame.display.flip()
 
     def handle_turn(self):
+
         if self.mode == 'PVE':
             self.handle_player_turn()
             self.handle_enemy_turn()
@@ -78,6 +87,14 @@ class Game:
             elif self.current_team == 'player2':
                 self.handle_team_turn(self.enemy_units)
                 self.current_team = 'player'
+        # Vérifier les conditions de victoire ou de défaite
+        if not self.enemy_units:
+            raise GameOver("victory")
+        elif not self.player_units:
+            raise GameOver("defeat")
+
+
+
 
     def handle_player_turn(self):
         self.handle_team_turn(self.player_units)
@@ -417,29 +434,34 @@ class Game:
     def display_skill_menu(self, unit, available_skills):
         """
         Affiche le menu des compétences disponibles pour une unité sélectionnée,
-        avec des boutons deux fois plus grands et des textes centrés.
+        avec des boutons de taille définie et des textes centrés.
         """
-        font = pygame.font.Font(None, 36)  # Police pour les textes
-        skill_buttons = []  # Liste des boutons et compétences
+        font = pygame.font.Font(None, 36)
+        skill_buttons = []
 
-        # Initialisation des boutons et augmentation de leur taille
+        # Dimensions fixes des boutons
+        button_width = 300  # Largeur du bouton
+        button_height = 60  # Hauteur du bouton
+        vertical_spacing = 10  # Espacement vertical entre les boutons
+
+        # Initialisation des boutons et calcul de leur position
         for i, skill in enumerate(available_skills):
-            button_rect = pygame.Rect(10, 500 + i * 50, 300, 40)
-            button_rect.inflate_ip(button_rect.width, button_rect.height)  # Doubler la taille du bouton
+            button_x = 10 
+            button_y = 500 + i * (button_height + vertical_spacing)
+            button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
             skill_buttons.append((button_rect, skill))
 
-        button_areas = [button_rect.inflate(4, 4) for button_rect, _ in skill_buttons]  # Zones à mettre à jour
+        button_areas = [button_rect for button_rect, _ in skill_buttons] 
 
         while True:
-            mouse_pos = pygame.mouse.get_pos()  # Position actuelle de la souris
+            mouse_pos = pygame.mouse.get_pos()
 
-            # Parcourir les boutons pour gérer les interactions et les dessins
             for button_rect, skill in skill_buttons:
-                # Couleur selon l'état du bouton (surligné ou non)
+
                 if button_rect.collidepoint(mouse_pos):
-                    button_color = (250, 250, 205, 10)  # Couleur jaune clair semi-transparente
+                    button_color = (250, 250, 205, 10)
                 else:
-                    button_color = (135, 206, 250, 10)  # Couleur grise semi-transparente
+                    button_color = (135, 206, 250, 10)
 
                 # Créer une surface semi-transparente pour le bouton
                 button_surface = pygame.Surface((button_rect.width, button_rect.height), pygame.SRCALPHA)
