@@ -36,11 +36,8 @@ def main_loop(mode="PVE"):  # Ajout d'un paramètre pour le mode
                 game = Game(screen, selected_mode)
             elif result == "restart":
                 game = Game(screen, mode)
-
-
         # Affichage
         game.flip_display()
-
 
 # Lancer le jeu
 if __name__ == "__main__":
