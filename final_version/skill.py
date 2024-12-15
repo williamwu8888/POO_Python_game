@@ -24,7 +24,7 @@ class Skill:
     def calculate_damage(self, attacker, target):
         return max(0, self.power + attacker.attack_power - target.defense)
 
-class ShieldBash(Skill):
+class Stun(Skill):
     def __init__(self, name, power, range, accuracy):
         super().__init__(name, power, range, accuracy, area_of_effect=1)
 
@@ -111,3 +111,37 @@ class HealSkill(Skill):
             target.health = min(target.max_health, target.health + healing)
             print(f"{healer.team.capitalize()} unit ({healer.__class__.__name__}) heals "
                   f"{target.team.capitalize()} unit ({target.__class__.__name__}) for {healing} HP.")
+
+class FireballSkill(Skill):
+    def __init__(self, name, power, range, accuracy):
+        super().__init__(name, power, range, accuracy, area_of_effect=2)  # Area of effect set to 2
+
+    def use(self, attacker, target, game):
+        if random.random() < self.accuracy:
+            damage = self.calculate_damage(attacker, target)
+            print(f"{attacker.team.capitalize()} unit ({attacker.__class__.__name__}) casts {self.name} on "
+                  f"{target.team.capitalize()} unit ({target.__class__.__name__}), dealing {damage} damage.")
+            target.receive_damage(damage, game)
+        else:
+            print(f"{attacker.team.capitalize()} unit ({attacker.__class__.__name__}) missed with {self.name}!")
+
+class HealAllSkill(HealSkill):
+    def __init__(self, name, healing_amount, range, accuracy):
+        super().__init__(name, healing_amount, range, accuracy)
+
+    def use(self, healer, target, game):
+        # Heal all units in range, including the healer if desired
+        if random.random() < self.accuracy:
+            healing = self.power
+            # Heal all units in range
+            healed_units = []
+            for unit in game.board.units_in_range(healer, self.range):  # Assuming you have a method like this
+                unit.health = min(unit.max_health, unit.health + healing)
+                healed_units.append(unit)
+
+            for unit in healed_units:
+                print(f"{healer.team.capitalize()} unit ({healer.__class__.__name__}) heals "
+                      f"{unit.team.capitalize()} unit ({unit.__class__.__name__}) for {healing} HP.")
+        else:
+            print(f"{healer.team.capitalize()} unit ({healer.__class__.__name__}) missed with {self.name}!")
+

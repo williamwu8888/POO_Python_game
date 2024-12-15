@@ -143,7 +143,7 @@ class Game:
                             if available_skills:
                                 chosen_skill = self.display_skill_menu(selected_unit, available_skills)
 
-                                if chosen_skill.name == "Heal":
+                                if isinstance(chosen_skill, HealSkill):  # Check for HealSkill class
                                     # Get all possible heal targets (teammates within range)
                                     heal_targets = self.get_heal_targets(selected_unit)
                                     healable_targets = [target for target in heal_targets
@@ -189,7 +189,7 @@ class Game:
                                             )
                                             pygame.display.flip()
 
-                                elif chosen_skill.name == "Power Boost":  # Check for BuffSkill
+                                elif isinstance(chosen_skill, BuffSkill):  # Check for BuffSkill
                                     # Get teammates within the buff's range
                                     buffable_targets = self.get_buffable_targets(selected_unit, chosen_skill)
                                     
@@ -242,7 +242,62 @@ class Game:
                                     else:
                                         print("No valid teammates to buff.")
 
-                                elif (chosen_skill.name != "Heal" and chosen_skill != "Power Boost"):
+                                elif isinstance(chosen_skill, DebuffSkill):  # Check for DebuffSkill class
+                                    # Get enemies within the debuff's range
+                                    debuffable_targets = self.get_attackable_targets(selected_unit, chosen_skill)
+                                    
+                                    if debuffable_targets:
+                                        # Display the debuff range
+                                        self.display_attack_radius(selected_unit, chosen_skill.range)
+
+                                        # Wait for player to select a target
+                                        target_chosen = False
+                                        current_target_idx = 0  # Target selection cursor
+
+                                        # Filter the valid targets (enemies in range)
+                                        valid_targets = [target for target in debuffable_targets
+                                                        if abs(target[0] - selected_unit.x) + abs(target[1] - selected_unit.y) <= chosen_skill.range]
+
+                                        # Show the valid debuffable targets within range
+                                        while not target_chosen:
+                                            for event in pygame.event.get():
+                                                if event.type == pygame.QUIT:
+                                                    pygame.quit()
+                                                    exit()
+
+                                                if event.type == pygame.KEYDOWN:
+                                                    if event.key == pygame.K_DOWN:
+                                                        current_target_idx = (current_target_idx + 1) % len(valid_targets)  # Move to next target
+                                                    elif event.key == pygame.K_UP:
+                                                        current_target_idx = (current_target_idx - 1) % len(valid_targets)  # Move to previous target
+
+                                                    # Select a target with K_SPACE
+                                                    if event.key == pygame.K_SPACE:
+                                                        target_x, target_y = valid_targets[current_target_idx]
+                                                        target_unit = self.board.cells[target_y][target_x].unit
+                                                        if target_unit:
+                                                            print(f"{selected_unit.team.capitalize()} unit ({selected_unit.__class__.__name__}) debuffs "
+                                                                f"{target_unit.team.capitalize()} unit ({target_unit.__class__.__name__})'s "
+                                                                f"{chosen_skill.stat_to_debuff} by {chosen_skill.debuff_amount}.")
+                                                            chosen_skill.use(selected_unit, target_unit, self)
+                                                            target_chosen = True
+                                                            self.flip_display()
+
+                                            # Redraw the debuff range with the selected target
+                                            self.display_attack_radius(selected_unit, chosen_skill.range)
+                                            pygame.draw.rect(
+                                                self.screen,
+                                                (255, 0, 0),  # Red to indicate the selected target
+                                                (valid_targets[current_target_idx][0] * CELL_SIZE,
+                                                valid_targets[current_target_idx][1] * CELL_SIZE,
+                                                CELL_SIZE, CELL_SIZE),
+                                                3  # Outline thickness for the cursor
+                                            )
+                                            pygame.display.flip()
+                                    else:
+                                        print("No valid enemies to debuff.")
+
+                                elif not isinstance(chosen_skill, (HealSkill, BuffSkill, DebuffSkill)):  # Handle non-heal/buff/debuff skills
                                     # Filtrer les ennemis dans la portée
                                     attackable_targets = self.get_attackable_targets(selected_unit, chosen_skill)
 
