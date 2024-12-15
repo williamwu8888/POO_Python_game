@@ -6,6 +6,7 @@ from skill import *
 from board import GRID_ROWS, GRID_COLS, CELL_SIZE
 from wall import generate_walls, draw_walls
 from river import generate_rivers, draw_rivers
+from bush import generate_bushes, draw_bushes
 
 clock = pygame.time.Clock()
 
@@ -46,6 +47,13 @@ class Game:
             [(unit.x, unit.y) for unit in self.enemy_units]
         )
 
+        self.bushes = generate_bushes(
+            self.board,
+            [(unit.x, unit.y) for unit in self.player_units],
+            [(unit.x, unit.y) for unit in self.enemy_units],
+            [(wall.x, wall.y) for wall in self.walls],
+            [(river.x, river.y) for river in self.rivers]
+        )
 
         # Ajouter les unités au plateau
         for unit in self.player_units + self.enemy_units:
@@ -58,6 +66,7 @@ class Game:
         self.board.display(self.screen)
         draw_rivers(self.screen, self.board, CELL_SIZE)
         draw_walls(self.screen, self.board, CELL_SIZE)
+        draw_bushes(self.screen, self.board, CELL_SIZE)
         pygame.display.flip()
 
     def handle_turn(self):
