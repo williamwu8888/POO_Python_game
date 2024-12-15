@@ -3,7 +3,7 @@ from cell import Cell
 
 # Dimensions du plateau
 GRID_ROWS = 12
-GRID_COLS = 20
+GRID_COLS = 10
 
 # Taille des cases
 CELL_SIZE = 60
